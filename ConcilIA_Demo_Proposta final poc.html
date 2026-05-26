@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ConcilIA — Demo Proposta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+<style>
+:root{
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#0F6E56;
+  --purple:#534AB7;--purple-light:#EEEDFE;--purple-dark:#3C3489;
+  --red:#E24B4A;--red-light:#FCEBEB;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --blue:#185FA5;--blue-light:#E6F1FB;
+  --bg:#F7F7F5;--surface:#FFFFFF;--surface2:#F2F2EF;
+  --border:#E4E4E0;--border2:#D0D0CC;
+  --text:#1A1A18;--text2:#5A5A56;--text3:#9A9A96;
+  --radius:10px;--radius-sm:6px;--radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+
+/* BANNER */
+.demo-banner{background:linear-gradient(135deg,#1A1A18,#2A2A26);color:#fff;padding:10px 24px;font-size:12px;display:flex;align-items:center;gap:10px;justify-content:center}
+.demo-banner span{opacity:.6}
+.demo-banner strong{font-weight:600}
+
+/* TOPBAR */
+.topbar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;letter-spacing:-.02em}
+.logo-icon{width:28px;height:28px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.divider-v{width:1px;height:20px;background:var(--border2)}
+.page-title{font-size:13px;color:var(--text2);font-weight:400}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3)}
+
+/* SWITCHER */
+.switcher-wrap{padding:20px 24px 0}
+.switcher{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-width:700px}
+.sw{flex:1;padding:12px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);display:flex;align-items:center;gap:8px;font-family:var(--font);transition:all .2s;border-bottom:3px solid transparent}
+.sw:first-child{border-right:1px solid var(--border)}
+.sw.active.c1{color:var(--green-dark);border-bottom-color:var(--green);background:var(--green-light)}
+.sw.active.c2{color:var(--purple-dark);border-bottom-color:var(--purple);background:var(--purple-light)}
+.sw i{font-size:16px}
+.sw-badge{font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;font-weight:500}
+.sw.c1 .sw-badge{background:#9FE1CB;color:var(--green-dark)}
+.sw.c2 .sw-badge{background:#AFA9EC;color:var(--purple-dark)}
+
+/* CONTENT */
+.content{padding:20px 24px;max-width:1200px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* MÉTRICAS */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.metric .lbl{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.metric .val{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.metric .sub{font-size:11px;color:var(--text3);margin-top:3px}
+.val.red{color:var(--red)}
+.val.green{color:var(--green)}
+.val.purple{color:var(--purple)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-hdr{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
+.card-hdr h2{font-size:13px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.page-hdr{margin-bottom:16px}
+.page-hdr h1{font-size:16px;font-weight:500;margin-bottom:4px}
+.page-hdr p{font-size:12px;color:var(--text2)}
+.filters{display:flex;gap:8px}
+.filters select,.filters input{font-size:12px;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:var(--font);outline:none}
+
+/* TABELA */
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:600;color:var(--text3);padding:9px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);text-transform:uppercase;letter-spacing:.04em}
+td{font-size:13px;padding:10px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr.clickable{cursor:pointer;transition:background .15s}
+tr.clickable:hover{background:#FAFAF8}
+tr.sel{background:rgba(29,158,117,.06)!important}
+tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+tr.sel-purple{background:rgba(83,74,183,.05)!important}
+tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.tag.jf,.tag.fs{background:var(--green-light);color:var(--green-dark);border:1px solid #9FE1CB}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.pend{background:var(--amber-light);color:var(--amber)}
+.badge.done{background:var(--green-light);color:var(--green-dark)}
+.badge.conciliar{background:var(--purple-light);color:var(--purple)}
+
+/* ACTION BAR */
+.action-bar{padding:11px 18px;border-top:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.hint-text{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+
+/* BOTÕES */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:var(--font);transition:all .15s}
+.btn:hover{background:var(--surface2)}
+.btn.green{background:var(--green);color:#fff;border-color:var(--green-dark)}
+.btn.green:hover{background:var(--green-dark)}
+.btn.purple{background:var(--purple);color:#fff;border-color:var(--purple-dark)}
+.btn.purple:hover{background:var(--purple-dark)}
+.btn.danger{background:var(--red-light);color:var(--red);border-color:#F7C1C1}
+.btn:disabled{background:var(--surface2);color:var(--text3);border-color:var(--border);cursor:not-allowed}
+.btn i{font-size:15px}
+.insp-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--purple);background:var(--surface);color:var(--purple);font-family:var(--font);transition:all .15s}
+.insp-btn:hover{background:var(--purple-light)}
+
+/* PROCESSING */
+.processing-box{padding:32px;text-align:center}
+.spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--border2);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
+.spinner.green{border-top-color:var(--green)}
+.spinner.purple{border-top-color:var(--purple)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.processing-step{font-size:12px;color:var(--text2);font-family:var(--mono)}
+
+/* FICHA */
+.ficha{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow);animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ficha-hdr{padding:12px 18px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.ficha-hdr h2{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+
+/* SCORE */
+.score-wrap{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.score-lbl{font-size:12px;color:var(--text3);white-space:nowrap;font-weight:500}
+.bar{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.fill-green{height:100%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:4px}
+.fill-purple{height:100%;background:linear-gradient(90deg,var(--purple-dark),var(--purple));border-radius:4px}
+.score-pct{font-size:14px;font-weight:700;white-space:nowrap;font-family:var(--mono)}
+.score-pct.green{color:var(--green)}
+.score-pct.purple{color:var(--purple)}
+
+/* CRED HEADER */
+.cred-hdr{padding:11px 18px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.cred-fields{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.cf .cf-lbl{font-size:11px;color:var(--text3);margin-bottom:2px;font-weight:500}
+.cf .cf-val{font-size:13px;font-weight:600}
+.cf .cf-val.green{color:var(--green)}
+.cf .cf-val.purple{color:var(--purple)}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface2)}
+.tab{padding:9px 18px;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);display:flex;align-items:center;gap:7px;font-weight:500;transition:all .15s}
+.tab:hover{color:var(--text)}
+.tab.active-green{color:var(--green-dark);border-bottom-color:var(--green);background:var(--surface)}
+.tab.active-purple{color:var(--purple);border-bottom-color:var(--purple);background:var(--surface)}
+.tab i{font-size:14px}
+.tab-badge{font-size:10px;background:var(--blue-light);color:var(--blue);padding:1px 7px;border-radius:20px;font-weight:600}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* LOTE FLOW */
+.lote-flow{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.chip{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;font-family:var(--mono)}
+.chip.green{background:var(--green-light);color:var(--green-dark);border:1px solid #9FE1CB}
+.lote-arrow{color:var(--text3);font-size:20px}
+.lote-match{margin-left:auto;text-align:right}
+.lm-lbl{font-size:11px;color:var(--text3);margin-bottom:3px;font-weight:500}
+.lm-val{font-size:12px;font-weight:600}
+.lm-val span{color:var(--green)}
+
+/* FICHA BODY */
+.ficha-body{display:grid;grid-template-columns:1fr 1fr}
+.fcol{padding:16px 18px}
+.fcol:first-child{border-right:1px solid var(--border)}
+.sec-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.field{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:8px}
+.field .k{font-size:12px;color:var(--text2)}
+.field .v{font-size:12px;font-weight:600;text-align:right;font-family:var(--mono)}
+.v.green{color:var(--green)}
+.v.red{color:var(--red)}
+.v.blue{color:var(--blue)}
+.v.purple{color:var(--purple)}
+.sep{height:1px;background:var(--border);margin:10px 0}
+
+/* RESUMO */
+.resumo{padding:14px 18px;border-top:1px solid var(--border);background:var(--surface2)}
+.resumo-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.resumo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.ri{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
+.ri .rl{font-size:11px;color:var(--text3);font-weight:500;margin-bottom:4px}
+.ri .rv{font-size:16px;font-weight:700;font-family:var(--mono)}
+.ri .rv.green{color:var(--green)}
+.match-line{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:500;padding:10px 14px;border-radius:var(--radius);border:1px solid}
+.match-green{background:var(--green-light);border-color:#9FE1CB;color:var(--green-dark)}
+.match-purple{background:var(--purple-light);border-color:#AFA9EC;color:var(--purple)}
+.match-line i{font-size:18px;flex-shrink:0}
+
+/* FICHA ACTIONS */
+.ficha-actions{padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;background:var(--surface)}
+.ficha-meta{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:7px}
+.ficha-btns{display:flex;gap:8px}
+
+/* MASTER DETAIL */
+.master-detail{display:grid;grid-template-columns:320px 1fr;min-height:320px}
+.master{border-right:1px solid var(--border);overflow:hidden}
+.detail{padding:16px 18px;overflow-y:auto}
+.pay-summary{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.peg-list-title{padding:9px 16px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;background:var(--surface2);border-bottom:1px solid var(--border)}
+.peg-hint{padding:8px 16px;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.peg-header-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr 24px;align-items:center;padding:7px 14px;background:var(--surface2);border-bottom:1px solid var(--border);gap:4px}
+.peg-th{font-size:10px;font-weight:600;color:var(--text3);text-align:right;text-transform:uppercase;letter-spacing:.04em}
+.peg-th:first-child{text-align:left}
+.peg-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr 24px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;gap:4px}
+.peg-row:hover{background:var(--surface2)}
+.peg-row.active{background:var(--purple-light)}
+.peg-row.active .peg-num{color:var(--purple);font-weight:700}
+.peg-num{font-size:12px;font-weight:600;font-family:var(--mono);color:var(--text2)}
+.peg-cell{font-size:11px;text-align:right;font-family:var(--mono)}
+.peg-cell.r{color:var(--red)}
+.peg-cell.g{color:var(--green)}
+.peg-arrow{color:var(--text3);font-size:14px}
+.peg-row.active .peg-arrow{color:var(--purple)}
+.peg-total-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr 24px;align-items:center;padding:10px 14px;background:var(--surface2);border-top:1px solid var(--border2);gap:4px}
+.detail-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:200px;color:var(--text3);gap:8px;text-align:center}
+.detail-empty i{font-size:32px;opacity:.4}
+.detail-empty p{font-size:12px}
+.detail-peg-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.detail-peg-hdr h3{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.detail-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.dt-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px}
+.dt-item .dl{font-size:11px;color:var(--text3);margin-bottom:3px}
+.dt-item .dv{font-size:14px;font-weight:700;font-family:var(--mono)}
+.dv.g{color:var(--green)}
+.dv.r{color:var(--red)}
+.glosa-item{background:var(--red-light);border:1px solid #F7C1C1;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px}
+.glosa-item .gm{font-size:11px;font-weight:700;color:var(--red);margin-bottom:3px}
+.glosa-item .gd{font-size:11px;color:var(--text2);margin-bottom:6px;line-height:1.5}
+.glosa-item .gvals{display:flex;gap:16px;padding-top:6px;border-top:1px solid rgba(0,0,0,.06)}
+.gv .gl{font-size:10px;color:var(--text3);margin-bottom:2px}
+.gv .gn{font-size:12px;font-weight:600;font-family:var(--mono)}
+.gn.r{color:var(--red)}
+.gn.g{color:var(--green)}
+
+/* UPLOAD */
+.upload-body{padding:20px 18px}
+.upload-intro h3{font-size:13px;font-weight:500;margin-bottom:4px}
+.upload-intro p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:18px}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.valor-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 16px;display:flex;flex-direction:column;justify-content:center}
+.valor-box label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:8px}
+.valor-row{display:flex;align-items:center;gap:6px}
+.valor-pfx{font-size:14px;color:var(--text2);font-weight:500}
+.valor-inp{font-size:18px;font-weight:700;border:none;background:transparent;outline:none;width:160px;color:var(--text);font-family:var(--font)}
+.valor-src{font-size:11px;color:var(--text3);margin-top:6px;display:flex;align-items:center;gap:4px}
+.drop-box{border:1.5px dashed var(--border2);border-radius:var(--radius-sm);padding:20px 14px;text-align:center;cursor:pointer;transition:all .15s;position:relative;background:var(--surface2)}
+.drop-box:hover{border-color:var(--purple);background:var(--purple-light)}
+.drop-box.has-file{border-style:solid;border-color:var(--purple);background:var(--purple-light)}
+.drop-icon{font-size:28px;color:var(--text3);margin-bottom:8px;display:block}
+.drop-box.has-file .drop-icon{color:var(--purple)}
+.drop-label{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:3px}
+.drop-hint{font-size:11px;color:var(--text3)}
+.drop-ok{font-size:11px;color:var(--purple);font-weight:500;margin-top:6px;display:none}
+.drop-box.has-file .drop-ok{display:block}
+.drop-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border)}
+.upload-status{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+
+/* TABLE FOOTER */
+.table-footer{padding:10px 18px;border-top:1px solid var(--border);background:var(--surface2);font-size:12px;color:var(--text3)}
+
+/* FOOTER */
+.footer{padding:24px;text-align:center;font-size:12px;color:var(--text3);border-top:1px solid var(--border);margin-top:12px}
+
+@media(max-width:640px){
+  .metrics{grid-template-columns:1fr 1fr}
+  .ficha-body,.master-detail{grid-template-columns:1fr}
+  .fcol:first-child,.master{border-right:none;border-bottom:1px solid var(--border)}
+  .resumo-grid{grid-template-columns:1fr}
+  .upload-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  <i class="ti ti-flask" style="font-size:14px"></i>
+  <strong>ConcilIA — Demo PoC</strong>
+  <span>Protótipo para validação de conceito · A3Data × Mater Dei · Dados ilustrativos</span>
+</div>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon"><i class="ti ti-circle-check" style="font-size:15px"></i></div>
+    ConcilIA
+  </div>
+  <div class="divider-v"></div>
+  <span class="page-title">Conciliação de créditos</span>
+  <div class="topbar-right">
+    <i class="ti ti-point-filled" style="color:var(--green);font-size:10px"></i>
+    Motor ativo
+  </div>
+</div>
+
+<div class="switcher-wrap">
+  <div class="switcher">
+    <button class="sw c1 active" id="sw1" onclick="switchCenario(1)">
+      <i class="ti ti-plug-connected"></i>Cenário 1 — Operadoras via IC
+      <span class="sw-badge">Integrado IC</span>
+    </button>
+    <button class="sw c2" id="sw2" onclick="switchCenario(2)">
+      <i class="ti ti-hand-stop"></i>Cenário 2 — Operadoras 100% manual
+      <span class="sw-badge">ePro-Social</span>
+    </button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ═══════════ CENÁRIO 1 ═══════════ -->
+  <div class="panel active" id="panel1">
+    <div style="margin-bottom:16px;margin-top:16px">
+      <h1 style="font-size:16px;font-weight:500;margin-bottom:4px">Créditos identificados a conciliar</h1>
+      <p style="font-size:12px;color:var(--text2)">IC — créditos com status "Identificado a Conciliar" · Selecione um crédito para o motor buscar as remessas no MV</p>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="lbl">Total registros a conciliar IC</div>
+        <div class="val red">22</div>
+        <div class="sub">Base IC — pendentes</div>
+      </div>
+      <div class="metric">
+        <div class="lbl">Valor pendente</div>
+        <div class="val red">R$ 48.320</div>
+        <div class="sub">Em aberto</div>
+      </div>
+      <div class="metric">
+        <div class="lbl">Conciliados hoje</div>
+        <div class="val green">9</div>
+        <div class="sub">Via motor</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <h2><i class="ti ti-table" style="font-size:15px;color:var(--text3)"></i>Créditos identificados a conciliar — IC</h2>
+        <div class="filters">
+          <select><option selected>Fundação Saúde Itaú</option><option>Todas operadoras via IC</option></select>
+        </div>
+      </div>
+      <table>
+        <tr>
+          <th>Data crédito</th><th>Operadora</th><th>Vlr. identificado</th>
+          <th>Vlr. a conciliar</th><th>Protocolos</th><th>Status</th><th></th>
+        </tr>
+        <tr class="clickable" id="c1row1" onclick="c1Select()">
+          <td>29/04/2026</td>
+          <td><span class="tag fs">Fundação Saúde Itaú</span></td>
+          <td style="color:var(--text2)">R$ 238.026,86</td>
+          <td><strong style="color:var(--red)">R$ 1.569,42</strong></td>
+          <td style="color:var(--text2);font-family:var(--mono);font-size:12px">2 protocolos</td>
+          <td id="c1status"><span class="badge conciliar">A conciliar</span></td>
+          <td>
+            <button class="btn green" style="padding:5px 10px;font-size:12px" onclick="event.stopPropagation();c1Select()">
+              <i class="ti ti-search"></i>Buscar remessas
+            </button>
+          </td>
+        </tr>
+      </table>
+      <div class="table-footer">1 crédito selecionado para demonstração · Total base IC: 22 registros</div>
+    </div>
+
+    <div class="card" id="c1proc" style="display:none">
+      <div class="processing-box">
+        <div class="spinner green"></div>
+        <div class="processing-title">Motor buscando remessas no MV...</div>
+        <div class="processing-step" id="c1step">Carregando protocolos da IC...</div>
+      </div>
+    </div>
+
+    <div class="ficha" id="c1ficha" style="display:none">
+      <div class="ficha-hdr">
+        <h2><i class="ti ti-arrows-exchange" style="color:var(--green)"></i>Resultado — 2 protocolos / 2 lotes encontrados no MV</h2>
+        <span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Match encontrado</span>
+      </div>
+      <div class="score-wrap">
+        <span class="score-lbl">Score de confiança</span>
+        <div class="bar"><div class="fill-green" style="width:100%"></div></div>
+        <span class="score-pct green">100% — match exato nos 2 lotes</span>
+      </div>
+      <div class="cred-hdr">
+        <div class="cred-fields">
+          <div class="cf"><div class="cf-lbl">Operadora</div><div class="cf-val">Fundação Saúde Itaú</div></div>
+          <div class="cf"><div class="cf-lbl">Data crédito</div><div class="cf-val">29/04/2026</div></div>
+          <div class="cf"><div class="cf-lbl">Vlr. a conciliar (IC)</div><div class="cf-val" style="color:var(--red)">R$ 1.569,42</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);text-align:right">Motor encontrou<br><strong style="color:var(--text)">2 protocolos</strong> com lotes distintos</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active-green" id="tp1" onclick="swProto(1)">
+          <i class="ti ti-file-description"></i>Protocolo 20036306
+          <span class="tab-badge">Lote 17466</span>
+        </div>
+        <div class="tab" id="tp2" onclick="swProto(2)">
+          <i class="ti ti-file-description"></i>Protocolo 20036307
+          <span class="tab-badge">Lote 17467</span>
+        </div>
+      </div>
+
+      <div class="tab-panel active" id="pp1">
+        <div class="lote-flow">
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500">Lote IC (CD Remessa)</div><div class="chip green">17466</div></div>
+          <i class="ti ti-arrow-right lote-arrow"></i>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500">Remessa MV — Monitoração TISS</div><div class="chip green">Remessa 2370081</div></div>
+          <div class="lote-match"><div class="lm-lbl">Valores</div><div class="lm-val">IC: <span>R$ 1.550,00</span> = MV: <span>R$ 1.550,00</span> ✓</div></div>
+        </div>
+        <div class="ficha-body">
+          <div class="fcol">
+            <div class="sec-title">Dados IC</div>
+            <div class="field"><span class="k">Protocolo</span><span class="v purple">20036306</span></div>
+            <div class="field"><span class="k">Lote (CD Remessa)</span><span class="v purple">17466</span></div>
+            <div class="field"><span class="k">Vlr. liberado IC</span><span class="v green">R$ 1.550,00</span></div>
+            <div class="field"><span class="k">Dt. Pagamento</span><span class="v">29/04/2026</span></div>
+          </div>
+          <div class="fcol">
+            <div class="sec-title">Dados MV — Monitoração TISS</div>
+            <div class="field"><span class="k">Convênio</span><span class="v">47 — Fundação Saúde Itaú</span></div>
+            <div class="field"><span class="k">Lote</span><span class="v purple">17466</span></div>
+            <div class="field"><span class="k">Remessa</span><span class="v green">2370081</span></div>
+            <div class="field"><span class="k">Nr. NF</span><span class="v">998</span></div>
+            <div class="field"><span class="k">Vlr. remessa MV</span><span class="v green">R$ 1.550,00</span></div>
+            <div class="field"><span class="k">Situação</span><span class="v">Lote Enviado</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="pp2">
+        <div class="lote-flow">
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500">Lote IC (CD Remessa)</div><div class="chip green">17467</div></div>
+          <i class="ti ti-arrow-right lote-arrow"></i>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:500">Remessa MV — Monitoração TISS</div><div class="chip green">Remessa 2370082</div></div>
+          <div class="lote-match"><div class="lm-lbl">Valores</div><div class="lm-val">IC: <span>R$ 19,42</span> = MV: <span>R$ 19,42</span> ✓</div></div>
+        </div>
+        <div class="ficha-body">
+          <div class="fcol">
+            <div class="sec-title">Dados IC</div>
+            <div class="field"><span class="k">Protocolo</span><span class="v purple">20036307</span></div>
+            <div class="field"><span class="k">Lote (CD Remessa)</span><span class="v purple">17467</span></div>
+            <div class="field"><span class="k">Vlr. liberado IC</span><span class="v green">R$ 19,42</span></div>
+            <div class="field"><span class="k">Dt. Pagamento</span><span class="v">29/04/2026</span></div>
+          </div>
+          <div class="fcol">
+            <div class="sec-title">Dados MV — Monitoração TISS</div>
+            <div class="field"><span class="k">Convênio</span><span class="v">47 — Fundação Saúde Itaú</span></div>
+            <div class="field"><span class="k">Lote</span><span class="v purple">17467</span></div>
+            <div class="field"><span class="k">Remessa</span><span class="v green">2370082</span></div>
+            <div class="field"><span class="k">Nr. NF</span><span class="v">999</span></div>
+            <div class="field"><span class="k">Vlr. remessa MV</span><span class="v green">R$ 19,42</span></div>
+            <div class="field"><span class="k">Situação</span><span class="v">Lote Enviado</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="resumo">
+        <div class="resumo-title">Resumo consolidado — Protocolo 1 + Protocolo 2</div>
+        <div class="resumo-grid">
+          <div class="ri"><div class="rl">Vlr. a conciliar (IC)</div><div class="rv" style="color:var(--red)">R$ 1.569,42</div></div>
+          <div class="ri"><div class="rl">Lote 17466 → Remessa 2370081</div><div class="rv">R$ 1.550,00</div></div>
+          <div class="ri"><div class="rl">Lote 17467 → Remessa 2370082</div><div class="rv">R$ 19,42</div></div>
+        </div>
+        <div class="match-line match-green">
+          <i class="ti ti-circle-check"></i>
+          <span>R$ 1.550,00 + R$ 19,42 = R$ 1.569,42 — fecha com o valor a conciliar. Diferença: R$ 0,00</span>
+        </div>
+      </div>
+
+      <div class="ficha-actions">
+        <div class="ficha-meta"><i class="ti ti-clock" style="color:var(--green)"></i>2 protocolos / 2 remessas encontradas em 4s — próximo passo: conciliar no IC usando as remessas 2370081 e 2370082</div>
+        <div class="ficha-btns">
+          <button class="btn danger" onclick="c1Rejeitar()"><i class="ti ti-x"></i>Rejeitar</button>
+          <button class="btn" onclick="alert('Aberto para análise manual.')"><i class="ti ti-edit"></i>Revisar</button>
+          <button class="btn green" onclick="c1Confirmar()"><i class="ti ti-check"></i>Confirmar e ir ao IC</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ CENÁRIO 2 ═══════════ -->
+  <div class="panel" id="panel2">
+    <div style="margin-bottom:16px;margin-top:16px">
+      <h1 style="font-size:16px;font-weight:500;margin-bottom:4px">Relatório de créditos pendentes</h1>
+      <p style="font-size:12px;color:var(--text2)">MV — HMDCOB002-01 · Selecione um crédito para inspecionar e iniciar a pré-conciliação</p>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr">
+        <h2><i class="ti ti-table" style="font-size:15px;color:var(--text3)"></i>Créditos de convênio — período 04/2026 a 05/2026</h2>
+        <div class="filters">
+          <select><option selected>Justiça Federal</option><option>Todas operadoras</option></select>
+          <input type="text" placeholder="Buscar..." style="width:130px"/>
+        </div>
+      </div>
+      <table>
+        <tr><th>Data crédito</th><th>Fornecedor</th><th>Banco</th><th>Documento</th><th>Valor lançado</th><th>Dias em aberto</th><th>Status</th><th></th></tr>
+        <tr class="clickable" id="c2row1" onclick="c2Select()">
+          <td>29/04/2026</td>
+          <td><span class="tag jf">Justiça Federal 1º Grau MG</span></td>
+          <td>Itaú 90219-8</td>
+          <td style="font-weight:500;font-family:var(--mono)">2904</td>
+          <td><strong style="font-size:14px">R$ 76.811,62</strong></td>
+          <td style="color:var(--red);font-weight:500">26 dias</td>
+          <td id="c2status"><span class="badge pend"><i class="ti ti-clock" style="font-size:11px"></i>Pendente</span></td>
+          <td><button class="insp-btn" onclick="event.stopPropagation();c2Select()"><i class="ti ti-search" style="font-size:13px"></i>Inspecionar</button></td>
+        </tr>
+      </table>
+      <div class="table-footer">1 crédito pendente · Total: R$ 76.811,62</div>
+    </div>
+
+    <div class="card" id="c2upload" style="display:none">
+      <div class="card-hdr">
+        <h2><i class="ti ti-file-upload" style="color:var(--purple)"></i>Pré-conciliação — R$ 76.811,62 · Justiça Federal · 29/04/2026</h2>
+        <span style="font-size:11px;color:var(--text3)">Passo 1 de 2</span>
+      </div>
+      <div class="upload-body">
+        <div class="upload-intro">
+          <h3>Faça upload dos demonstrativos do ePro-Social</h3>
+          <p>Baixe os arquivos no portal ePro-Social (Relatórios → Demonstrativo de Pagamento e Demonstrativo de Glosas Analítico) e faça o upload abaixo. O motor extrai e consolida os dados automaticamente.</p>
+        </div>
+        <div class="upload-grid">
+          <div class="valor-box">
+            <label>Valor do crédito (MV)</label>
+            <div class="valor-row"><span class="valor-pfx">R$</span><input class="valor-inp" type="text" value="76.811,62"/></div>
+            <div class="valor-src"><i class="ti ti-table" style="font-size:12px"></i>HMDCOB002-01</div>
+          </div>
+          <div class="drop-box" id="box-pagto" onclick="sim('pagto')">
+            <input type="file" accept=".pdf" onchange="uploaded(event,'pagto')" onclick="event.stopPropagation()"/>
+            <span class="drop-icon"><i class="ti ti-file-invoice" id="icon-pagto"></i></span>
+            <div class="drop-label">Demonstrativo de Pagamento</div>
+            <div class="drop-hint">PDF · ePro-Social TRF019</div>
+            <div class="drop-ok" id="ok-pagto"><i class="ti ti-check"></i> NF 35 + NF 37 detectadas</div>
+          </div>
+          <div class="drop-box" id="box-glosas" onclick="sim('glosas')">
+            <input type="file" accept=".pdf" onchange="uploaded(event,'glosas')" onclick="event.stopPropagation()"/>
+            <span class="drop-icon"><i class="ti ti-file-minus" id="icon-glosas"></i></span>
+            <div class="drop-label">Demonstrativo de Glosas</div>
+            <div class="drop-hint">PDF · ePro-Social TRF016</div>
+            <div class="drop-ok" id="ok-glosas"><i class="ti ti-check"></i> Glosas extraídas</div>
+          </div>
+        </div>
+        <div class="upload-footer">
+          <div class="upload-status" id="upload-status"><i class="ti ti-info-circle" style="font-size:14px"></i>Faça upload dos 2 demonstrativos para continuar</div>
+          <button class="btn purple" id="processar-btn" disabled onclick="processar()"><i class="ti ti-cpu"></i>Processar documentos</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="c2proc" style="display:none">
+      <div class="processing-box">
+        <div class="spinner purple"></div>
+        <div class="processing-title">Extraindo e consolidando dados dos PDFs...</div>
+        <div class="processing-step" id="c2step">Lendo Demonstrativo de Pagamento...</div>
+      </div>
+    </div>
+
+    <div class="ficha" id="c2ficha" style="display:none">
+      <div class="ficha-hdr">
+        <h2><i class="ti ti-file-check" style="color:var(--purple)"></i>Ficha de pré-conciliação — 2 notas fiscais encontradas</h2>
+        <span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Match encontrado</span>
+      </div>
+      <div class="score-wrap">
+        <span class="score-lbl">Score de confiança</span>
+        <div class="bar"><div class="fill-purple" style="width:94%"></div></div>
+        <span class="score-pct purple">94% — NF 35 + NF 37 fecham o crédito bancário</span>
+      </div>
+      <div class="cred-hdr">
+        <div class="cred-fields">
+          <div class="cf"><div class="cf-lbl">Crédito bancário (MV)</div><div class="cf-val green" style="font-size:15px">R$ 76.811,62</div></div>
+          <div class="cf"><div class="cf-lbl">Operadora</div><div class="cf-val">Justiça Federal 1º Grau MG</div></div>
+          <div class="cf"><div class="cf-lbl">Data crédito</div><div class="cf-val">29/04/2026</div></div>
+          <div class="cf"><div class="cf-lbl">PDFs processados</div><div class="cf-val purple">2 documentos · 2 NFs</div></div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active-purple" id="t35" onclick="swNF('35')"><i class="ti ti-file-invoice"></i>Nota Fiscal 35<span class="tab-badge">Processo 5841226</span></div>
+        <div class="tab" id="t37" onclick="swNF('37')"><i class="ti ti-file-invoice"></i>Nota Fiscal 37<span class="tab-badge">Processo 5928626</span></div>
+      </div>
+
+      <!-- NF 35 master-detail -->
+      <div class="tab-panel active" id="p35">
+        <div class="master-detail">
+          <div class="master">
+            <div class="pay-summary">
+              <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Demonstrativo de pagamento</div>
+              <div class="field"><span class="k">Processo</span><span class="v blue">5841226</span></div>
+              <div class="field"><span class="k">Nota fiscal</span><span class="v">35</span></div>
+              <div class="field"><span class="k">Valor solicitado</span><span class="v">R$ 905,94</span></div>
+              <div class="field"><span class="k">Glosa total</span><span class="v red">R$ 404,45</span></div>
+              <div class="field"><span class="k">IRRF</span><span class="v red">R$ 1.942,20</span></div>
+              <div class="field"><span class="k" style="font-weight:700">Valor líquido</span><span class="v green" style="font-size:14px">R$ 30.853,46</span></div>
+            </div>
+            <div class="peg-list-title">PEGs — clique para ver os itens</div>
+            <div class="peg-hint"><i class="ti ti-hand-click" style="font-size:13px"></i>Clique em um PEG para detalhar</div>
+            <div class="peg-header-row">
+              <div class="peg-th">PEG</div><div class="peg-th">Cobrado</div><div class="peg-th">Glosa</div><div class="peg-th">Devido</div><div></div>
+            </div>
+            <div class="peg-row" id="peg35-207793" onclick="showDetail('35','207793')">
+              <div class="peg-num">207793</div><div class="peg-cell">R$ 781,58</div><div class="peg-cell r">R$ 280,16</div><div class="peg-cell g">R$ 501,42</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div>
+            </div>
+            <div class="peg-row" id="peg35-207807" onclick="showDetail('35','207807')">
+              <div class="peg-num">207807</div><div class="peg-cell">R$ 124,36</div><div class="peg-cell r">R$ 124,29</div><div class="peg-cell g">R$ 0,07</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div>
+            </div>
+            <div class="peg-total-row">
+              <div class="peg-th">Total</div><div class="peg-cell" style="font-weight:700">R$ 905,94</div><div class="peg-cell r" style="font-weight:700">R$ 404,45</div><div class="peg-cell g" style="font-weight:700">R$ 501,49</div><div></div>
+            </div>
+          </div>
+          <div class="detail" id="detail-35">
+            <div class="detail-empty" id="empty-35"><i class="ti ti-hand-click"></i><p>Selecione um PEG ao lado<br>para ver os itens de glosa</p></div>
+            <div id="content-35" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NF 37 master-detail -->
+      <div class="tab-panel" id="p37">
+        <div class="master-detail">
+          <div class="master">
+            <div class="pay-summary">
+              <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Demonstrativo de pagamento</div>
+              <div class="field"><span class="k">Processo</span><span class="v blue">5928626</span></div>
+              <div class="field"><span class="k">Nota fiscal</span><span class="v">37</span></div>
+              <div class="field"><span class="k">Valor solicitado</span><span class="v">R$ 27.259,63</span></div>
+              <div class="field"><span class="k">Glosa total</span><span class="v red">R$ 25.322,34</span></div>
+              <div class="field"><span class="k">IRRF</span><span class="v red">R$ 4.429,01</span></div>
+              <div class="field"><span class="k" style="font-weight:700">Valor líquido</span><span class="v green" style="font-size:14px">R$ 45.958,16</span></div>
+            </div>
+            <div class="peg-list-title">PEGs — clique para ver os itens</div>
+            <div class="peg-hint"><i class="ti ti-hand-click" style="font-size:13px"></i>Clique em um PEG para detalhar</div>
+            <div class="peg-header-row">
+              <div class="peg-th">PEG</div><div class="peg-th">Cobrado</div><div class="peg-th">Glosa</div><div class="peg-th">Devido</div><div></div>
+            </div>
+            <div class="peg-row" id="peg37-208094" onclick="showDetail('37','208094')"><div class="peg-num">208094</div><div class="peg-cell">R$ 259,16</div><div class="peg-cell r">R$ 86,24</div><div class="peg-cell g">R$ 172,92</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-row" id="peg37-208096" onclick="showDetail('37','208096')"><div class="peg-num">208096</div><div class="peg-cell">R$ 234,50</div><div class="peg-cell r">R$ 234,50</div><div class="peg-cell g">R$ 0,00</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-row" id="peg37-208097" onclick="showDetail('37','208097')"><div class="peg-num">208097</div><div class="peg-cell">R$ 26.228,85</div><div class="peg-cell r">R$ 24.740,55</div><div class="peg-cell g">R$ 1.488,30</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-row" id="peg37-208102" onclick="showDetail('37','208102')"><div class="peg-num">208102</div><div class="peg-cell">R$ 9,54</div><div class="peg-cell r">R$ 0,74</div><div class="peg-cell g">R$ 8,80</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-row" id="peg37-208104" onclick="showDetail('37','208104')"><div class="peg-num">208104</div><div class="peg-cell">R$ 1.645,84</div><div class="peg-cell r">R$ 234,50</div><div class="peg-cell g">R$ 1.411,34</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-row" id="peg37-208107" onclick="showDetail('37','208107')"><div class="peg-num">208107</div><div class="peg-cell">R$ 2.424,06</div><div class="peg-cell r">R$ 26,91</div><div class="peg-cell g">R$ 2.397,15</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-row" id="peg37-208118" onclick="showDetail('37','208118')"><div class="peg-num">208118</div><div class="peg-cell">R$ 261,17</div><div class="peg-cell r">R$ 0,01</div><div class="peg-cell g">R$ 261,16</div><div class="peg-arrow"><i class="ti ti-chevron-right"></i></div></div>
+            <div class="peg-total-row">
+              <div class="peg-th">Total</div><div class="peg-cell" style="font-weight:700">R$ 27.259,63</div><div class="peg-cell r" style="font-weight:700">R$ 25.322,34</div><div class="peg-cell g" style="font-weight:700">R$ 1.937,29</div><div></div>
+            </div>
+          </div>
+          <div class="detail" id="detail-37">
+            <div class="detail-empty" id="empty-37"><i class="ti ti-hand-click"></i><p>Selecione um PEG ao lado<br>para ver os itens de glosa</p></div>
+            <div id="content-37" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="resumo">
+        <div class="resumo-title">Resumo consolidado — NF 35 + NF 37</div>
+        <div class="resumo-grid">
+          <div class="ri"><div class="rl">Crédito bancário (MV)</div><div class="rv green">R$ 76.811,62</div></div>
+          <div class="ri"><div class="rl">NF 35 — valor líquido</div><div class="rv">R$ 30.853,46</div></div>
+          <div class="ri"><div class="rl">NF 37 — valor líquido</div><div class="rv">R$ 45.958,16</div></div>
+        </div>
+        <div class="match-line match-purple">
+          <i class="ti ti-circle-check"></i>
+          <span>R$ 30.853,46 + R$ 45.958,16 = R$ 76.811,62 — fecha com o crédito bancário. Diferença: R$ 0,00</span>
+        </div>
+      </div>
+
+      <div class="ficha-actions">
+        <div class="ficha-meta"><i class="ti ti-clock" style="color:var(--purple)"></i>2 PDFs processados em 6s — dados extraídos e consolidados automaticamente</div>
+        <div class="ficha-btns">
+          <button class="btn danger" onclick="c2Rejeitar()"><i class="ti ti-x"></i>Rejeitar</button>
+          <button class="btn" onclick="alert('Aberto para análise manual.')"><i class="ti ti-edit"></i>Revisar</button>
+          <button class="btn purple" onclick="c2Confirmar()"><i class="ti ti-check"></i>Confirmar baixa no MV</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>ConcilIA</strong> — Protótipo de Prova de Conceito · A3Data × Rede Mater Dei · Maio 2026<br/>
+  <span style="margin-top:4px;display:block">Dados ilustrativos para fins de demonstração.</span>
+</div>
+
+<script>
+// ── DADOS PEGs ──────────────────────────────────────
+var pegData={
+  '35':{
+    '207793':{cobrado:'R$ 781,58',glosa:'R$ 280,16',devido:'R$ 501,42',itens:[
+      {mot:'Valor cobrado acima da tabela negociada',desc:'3M Tegaderm IV Curativo e Fixador — material lançado com codificação TUSS e não SIMPRO conforme contrato',cob:'R$ 64,32',glo:'R$ 30,42',dev:'R$ 33,90'},
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Kytril 1mg/ml sol. inj. ct. amp. vd. — Medicamentos Brasíndice',cob:'R$ 522,42',glo:'R$ 167,38',dev:'R$ 355,04'},
+      {mot:'Glosa de auditoria',desc:'Família de Equipos para Infusão Gravitacional — diferença do capiante. XML enviado com valor da conta suja. Autorizado por Betânia por e-mail.',cob:'R$ 194,84',glo:'R$ 82,36',dev:'R$ 112,48'}
+    ]},
+    '207807':{cobrado:'R$ 124,36',glosa:'R$ 124,29',devido:'R$ 0,07',itens:[
+      {mot:'Grau não é válido para o evento',desc:'Secufill REF: NÃO SE APLICA — material cobrado com TUSS, deve ser SIMPRO conforme contrato',cob:'R$ 120,45',glo:'R$ 120,45',dev:'R$ 0,00'},
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Lanceta Descartável para Lancetador — Materiais SIMPRO',cob:'R$ 3,91',glo:'R$ 3,84',dev:'R$ 0,07'}
+    ]}
+  },
+  '37':{
+    '208094':{cobrado:'R$ 259,16',glosa:'R$ 86,24',devido:'R$ 172,92',itens:[
+      {mot:'Glosa de auditoria',desc:'Família de Equipos para Infusão Gravitacional — diferença do capiante. XML com valor conta suja. Autorizado por Betânia.',cob:'R$ 194,84',glo:'R$ 55,82',dev:'R$ 139,02'},
+      {mot:'Valor cobrado acima da tabela negociada',desc:'3M Tegaderm IV Curativo e Fixador — Materiais SIMPRO',cob:'R$ 64,32',glo:'R$ 30,42',dev:'R$ 33,90'}
+    ]},
+    '208096':{cobrado:'R$ 234,50',glosa:'R$ 234,50',devido:'R$ 0,00',itens:[
+      {mot:'Grau não é válido para o evento',desc:'Medi-Trace Eletrodos Para — materiais lançados com TUSS, devem ser cobrados com SIMPRO conforme contrato',cob:'R$ 59,50',glo:'R$ 59,50',dev:'R$ 0,00'},
+      {mot:'Grau não é válido para o evento',desc:'Cateter Nasal Tipo Óculos Oxigênio REF: NÃO SE APLICA — TUSS, deve ser SIMPRO',cob:'R$ 175,00',glo:'R$ 175,00',dev:'R$ 0,00'}
+    ]},
+    '208097':{cobrado:'R$ 26.228,85',glosa:'R$ 24.740,55',devido:'R$ 1.488,30',itens:[
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Filling Kit P/RM — Materiais SIMPRO — valor cobrado acima da tabela negociada',cob:'R$ 26.228,85',glo:'R$ 24.740,55',dev:'R$ 1.488,30'}
+    ]},
+    '208102':{cobrado:'R$ 9,54',glosa:'R$ 0,74',devido:'R$ 8,80',itens:[
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Floratil 100mg bl. 12 caps. gel dura — Medicamentos Brasíndice',cob:'R$ 9,54',glo:'R$ 0,74',dev:'R$ 8,80'}
+    ]},
+    '208104':{cobrado:'R$ 1.645,84',glosa:'R$ 234,50',devido:'R$ 1.411,34',itens:[
+      {mot:'Grau não é válido para o evento',desc:'Medi-Trace Eletrodos Para — TUSS, devem ser SIMPRO conforme contrato',cob:'R$ 59,50',glo:'R$ 59,50',dev:'R$ 0,00'},
+      {mot:'Grau não é válido para o evento',desc:'Cateter Nasal Tipo Óculos Oxigênio — TUSS, deve ser SIMPRO conforme contrato',cob:'R$ 175,00',glo:'R$ 175,00',dev:'R$ 0,00'}
+    ]},
+    '208107':{cobrado:'R$ 2.424,06',glosa:'R$ 26,91',devido:'R$ 2.397,15',itens:[
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Lanceta Descartável para Lancetador — Materiais SIMPRO',cob:'R$ 3,91',glo:'R$ 3,84',dev:'R$ 0,07'},
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Tenlopin 5mg bl. al. plas. opc. x 30 cprs. — Medicamentos Brasíndice',cob:'R$ 6,18',glo:'R$ 3,30',dev:'R$ 2,88'}
+    ]},
+    '208118':{cobrado:'R$ 261,17',glosa:'R$ 0,01',devido:'R$ 261,16',itens:[
+      {mot:'Valor cobrado acima da tabela negociada',desc:'Doppler Colorido de Órgão ou Estrutura — Exames Ultrassonografia',cob:'R$ 261,17',glo:'R$ 0,01',dev:'R$ 261,16'}
+    ]}
+  }
+};
+
+// ── CENÁRIO 1 ────────────────────────────────────────
+function switchCenario(n){
+  document.getElementById('sw1').classList.toggle('active',n===1);
+  document.getElementById('sw2').classList.toggle('active',n===2);
+  document.getElementById('panel1').classList.toggle('active',n===1);
+  document.getElementById('panel2').classList.toggle('active',n===2);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function c1Select(){
+  document.getElementById('c1row1').classList.add('sel');
+  document.getElementById('c1proc').style.display='block';
+  document.getElementById('c1ficha').style.display='none';
+  document.getElementById('c1proc').scrollIntoView({behavior:'smooth',block:'center'});
+  var steps=['Carregando protocolos da IC...','Protocolo 20036306 → lote 17466 identificado','Protocolo 20036307 → lote 17467 identificado','Consultando MV TISS: lote 17466...','Remessa 2370081 localizada — R$ 1.550,00 ✓','Consultando MV TISS: lote 17467...','Remessa 2370082 localizada — R$ 19,42 ✓','R$ 1.550,00 + R$ 19,42 = R$ 1.569,42 ✓ — resultado pronto'];
+  var i=0,el=document.getElementById('c1step');
+  var iv=setInterval(function(){
+    if(i<steps.length){el.textContent=steps[i];i++;}
+    else{clearInterval(iv);document.getElementById('c1proc').style.display='none';document.getElementById('c1ficha').style.display='block';document.getElementById('c1ficha').scrollIntoView({behavior:'smooth'});}
+  },550);
+}
+
+function swProto(n){
+  [1,2].forEach(function(i){document.getElementById('tp'+i).className='tab';document.getElementById('pp'+i).classList.remove('active');});
+  document.getElementById('tp'+n).className='tab active-green';
+  document.getElementById('pp'+n).classList.add('active');
+}
+
+function c1Confirmar(){
+  alert('Remessas 2370081 e 2370082 prontas!\n\nAbra o IC → Conciliar Faturamento → filtre pelas remessas para concluir.');
+  document.getElementById('c1ficha').style.display='none';
+  document.getElementById('c1status').innerHTML='<span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Conciliado</span>';
+  document.getElementById('c1row1').classList.remove('sel');
+}
+function c1Rejeitar(){document.getElementById('c1ficha').style.display='none';alert('Enviado para revisão manual.');}
+
+// ── CENÁRIO 2 ────────────────────────────────────────
+var pagtoOk=false,glosasOk=false;
+
+function c2Select(){
+  document.getElementById('c2row1').classList.add('sel-purple');
+  document.getElementById('c2upload').style.display='block';
+  document.getElementById('c2upload').scrollIntoView({behavior:'smooth'});
+}
+
+function sim(t){setTimeout(function(){mark(t);},300);}
+function uploaded(e,t){if(e.target.files.length>0)mark(t);}
+function mark(t){
+  document.getElementById('box-'+t).classList.add('has-file');
+  document.getElementById('icon-'+t).style.color='var(--purple)';
+  if(t==='pagto')pagtoOk=true;
+  if(t==='glosas')glosasOk=true;
+  var s=document.getElementById('upload-status'),btn=document.getElementById('processar-btn');
+  if(pagtoOk&&glosasOk){
+    btn.disabled=false;
+    s.innerHTML='<i class="ti ti-check" style="font-size:14px;color:var(--purple)"></i>2 documentos prontos — clique em "Processar documentos"';
+  } else {
+    s.innerHTML='<i class="ti ti-info-circle" style="font-size:14px"></i>Falta '+(pagtoOk?'o Demonstrativo de Glosas':'o Demonstrativo de Pagamento');
+  }
+}
+
+function processar(){
+  document.getElementById('c2upload').style.display='none';
+  document.getElementById('c2proc').style.display='block';
+  document.getElementById('c2proc').scrollIntoView({behavior:'smooth'});
+  var steps=['Lendo Demonstrativo de Pagamento (TRF019)...','Identificando NFs: 35 (Processo 5841226) e 37 (Processo 5928626)...','Extraindo valores: solicitado, glosa, devido, IRRF, líquido...','Lendo Demonstrativo de Glosas Analítico (TRF016)...','Extraindo PEG 207793 — 3 itens de glosa...','Extraindo PEG 207807 — 2 itens de glosa...','Extraindo PEGs 208094 a 208118 — NF 37...','R$ 30.853,46 + R$ 45.958,16 = R$ 76.811,62 ✓ — consolidando ficha...'];
+  var i=0,el=document.getElementById('c2step');
+  var iv=setInterval(function(){
+    if(i<steps.length){el.textContent=steps[i];i++;}
+    else{clearInterval(iv);document.getElementById('c2proc').style.display='none';document.getElementById('c2ficha').style.display='block';document.getElementById('c2ficha').scrollIntoView({behavior:'smooth'});}
+  },600);
+}
+
+function swNF(n){
+  ['35','37'].forEach(function(t){document.getElementById('t'+t).className='tab';document.getElementById('p'+t).classList.remove('active');});
+  document.getElementById('t'+n).className='tab active-purple';
+  document.getElementById('p'+n).classList.add('active');
+}
+
+function showDetail(nf,peg){
+  document.querySelectorAll('[id^="peg'+nf+'-"]').forEach(function(r){r.classList.remove('active')});
+  document.getElementById('peg'+nf+'-'+peg).classList.add('active');
+  var d=pegData[nf][peg];
+  var html='<div class="detail-peg-hdr"><h3><i class="ti ti-receipt" style="font-size:15px;color:var(--purple)"></i>PEG '+peg+' — '+d.itens.length+' item(ns) de glosa</h3></div>';
+  html+='<div class="detail-totals"><div class="dt-item"><div class="dl">Cobrado</div><div class="dv">'+d.cobrado+'</div></div><div class="dt-item"><div class="dl">Glosa</div><div class="dv r">'+d.glosa+'</div></div><div class="dt-item"><div class="dl">Devido</div><div class="dv g">'+d.devido+'</div></div></div>';
+  d.itens.forEach(function(item){
+    html+='<div class="glosa-item"><div class="gm">'+item.mot+'</div><div class="gd">'+item.desc+'</div><div class="gvals"><div class="gv"><div class="gl">Cobrado</div><div class="gn">'+item.cob+'</div></div><div class="gv"><div class="gl">Glosa</div><div class="gn r">'+item.glo+'</div></div><div class="gv"><div class="gl">Devido</div><div class="gn g">'+item.dev+'</div></div></div></div>';
+  });
+  document.getElementById('empty-'+nf).style.display='none';
+  var c=document.getElementById('content-'+nf);c.innerHTML=html;c.style.display='block';
+}
+
+function c2Confirmar(){
+  alert('Baixa confirmada!\n\nCrédito de R$ 76.811,62 registrado como conciliado.\nNF 35 (Processo 5841226) e NF 37 (Processo 5928626) vinculadas.');
+  document.getElementById('c2ficha').style.display='none';
+  document.getElementById('c2upload').style.display='none';
+  document.getElementById('c2status').innerHTML='<span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Conciliado</span>';
+  document.getElementById('c2row1').classList.remove('sel-purple');
+}
+function c2Rejeitar(){document.getElementById('c2ficha').style.display='none';alert('Enviado para revisão manual.');}
+</script>
+</body>
+</html>
