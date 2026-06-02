@@ -239,7 +239,33 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
 .gn.r{color:var(--red)}
 .gn.g{color:var(--green)}
 
-/* UPLOAD */
+/* COMBO CARDS */
+.combo-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;animation:slideIn .25s ease}
+.combo-hdr{padding:12px 18px;border-bottom:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.combo-hdr h2{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.combo-body{padding:20px 18px}
+.combo-intro{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6}
+.combo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.combo-card{border:1.5px solid var(--border2);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .2s;background:var(--surface)}
+.combo-card:hover{border-color:var(--purple);background:var(--purple-light)}
+.combo-card.combo-selected{border-color:var(--purple);background:var(--purple-light);box-shadow:0 0 0 3px rgba(83,74,183,.12)}
+.combo-rank{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.combo-rank-num{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.combo-score-pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono)}
+.score-100{background:#D1FAE5;color:#065F46}
+.score-95{background:#EDE9FE;color:#5B21B6}
+.combo-nfs{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.nf-chip{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;font-family:var(--mono);background:var(--surface2);border:1px solid var(--border2)}
+.combo-card.combo-selected .nf-chip{background:#fff;border-color:var(--purple)}
+.plus-sign{font-size:14px;color:var(--text3);font-weight:500}
+.combo-values{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.cv-item .cv-lbl{font-size:10px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.cv-item .cv-val{font-size:13px;font-weight:700;font-family:var(--mono)}
+.cv-val.green{color:var(--green)}
+.cv-val.red{color:var(--red)}
+.cv-val.purple{color:var(--purple)}
+.combo-footer{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--border)}
+.combo-hint-txt{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
 .upload-body{padding:20px 18px}
 .upload-intro h3{font-size:13px;font-weight:500;margin-bottom:4px}
 .upload-intro p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:18px}
@@ -277,6 +303,7 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
   .upload-grid{grid-template-columns:1fr}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -316,58 +343,98 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
 
   <!-- ═══════════ CENÁRIO 1 ═══════════ -->
   <div class="panel active" id="panel1">
-    <div style="margin-bottom:16px;margin-top:16px">
-      <h1 style="font-size:16px;font-weight:500;margin-bottom:4px">Créditos identificados a conciliar</h1>
-      <p style="font-size:12px;color:var(--text2)">IC — créditos com status "Identificado a Conciliar" · Selecione um crédito para o motor buscar as remessas no MV</p>
+
+    <!-- ABAS INTERNAS C1 -->
+    <div style="display:flex;gap:0;margin-top:16px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-width:800px">
+      <button id="c1tab-creditos" onclick="switchC1Tab('creditos')" style="flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:var(--green-light);color:var(--green-dark);display:flex;align-items:center;gap:8px;font-family:var(--font);border-bottom:2px solid var(--green)">
+        <i class="ti ti-plug-connected" style="font-size:15px"></i>Créditos IC
+        <span style="font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;background:#9FE1CB;color:var(--green-dark);font-weight:600" id="c1-badge-creditos">1</span>
+      </button>
+      <button id="c1tab-fila" onclick="switchC1Tab('fila')" style="flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);display:flex;align-items:center;gap:8px;font-family:var(--font);border-bottom:2px solid transparent;border-left:1px solid var(--border)">
+        <i class="ti ti-circle-check" style="font-size:15px"></i>Fila para IC
+        <span style="font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;background:var(--surface2);color:var(--text3);font-weight:600" id="c1-badge-fila">0</span>
+      </button>
+      <button id="c1tab-revisao" onclick="switchC1Tab('revisao')" style="flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);display:flex;align-items:center;gap:8px;font-family:var(--font);border-bottom:2px solid transparent;border-left:1px solid var(--border)">
+        <i class="ti ti-edit" style="font-size:15px"></i>Revisão manual
+        <span style="font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;background:var(--surface2);color:var(--text3);font-weight:600" id="c1-badge-revisao">0</span>
+      </button>
     </div>
 
-    <div class="metrics">
-      <div class="metric">
-        <div class="lbl">Total registros a conciliar IC</div>
-        <div class="val red">1</div>
-        <div class="sub">Base IC — pendentes</div>
+    <!-- SUB-PANEL: CRÉDITOS IC -->
+    <div id="c1-sub-creditos">
+
+    <!-- UPLOAD CSV IC -->
+    <div class="card" id="c1-csv-upload-card">
+      <div class="card-hdr">
+        <h2><i class="ti ti-file-spreadsheet" style="font-size:15px;color:var(--green)"></i>Importar relatório IC — Créditos a Conciliar</h2>
       </div>
-      <div class="metric">
-        <div class="lbl">Valor pendente</div>
-        <div class="val red">R$ 1.569,42</div>
-        <div class="sub">Em aberto</div>
-      </div>
-      <div class="metric">
-        <div class="lbl">Conciliados hoje</div>
-        <div class="val green">9</div>
-        <div class="sub">Via motor</div>
+      <div style="padding:20px 18px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+          Faça upload do arquivo CSV exportado da plataforma <strong>Intuitive Care (IC)</strong> com os créditos com status "Identificado a Conciliar". O sistema carrega os registros automaticamente.
+        </div>
+        <div class="drop-box" id="box-csv-ic" onclick="simCSV_IC()" style="max-width:480px">
+          <input type="file" accept=".xlsx,.csv" onchange="uploadedCSV_IC(event)" onclick="event.stopPropagation()"/>
+          <span class="drop-icon"><i class="ti ti-table-import" id="icon-csv-ic"></i></span>
+          <div class="drop-label">creditos_a_conciliar_IC.xlsx</div>
+          <div class="drop-hint">Arquivo XLSX ou CSV · exportado da plataforma IC</div>
+          <div class="drop-ok" id="ok-csv-ic"><i class="ti ti-check"></i> Relatório carregado — créditos disponíveis abaixo</div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
+    <!-- MÉTRICAS -->
+    <div id="c1-metrics-card" style="display:none">
+      <div class="metrics">
+        <div class="metric">
+          <div class="lbl">Total registros a conciliar IC</div>
+          <div class="val red" id="c1-metric-total">0</div>
+          <div class="sub">Base IC — pendentes</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Valor pendente</div>
+          <div class="val red" id="c1-metric-valor">R$ 0,00</div>
+          <div class="sub">Em aberto</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Inspecionados hoje</div>
+          <div class="val green" id="c1-metric-conciliados">0</div>
+          <div class="sub">Via motor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABELA DINÂMICA IC -->
+    <div class="card" id="c1-table-card" style="display:none">
       <div class="card-hdr">
         <h2><i class="ti ti-table" style="font-size:15px;color:var(--text3)"></i>Créditos identificados a conciliar — IC</h2>
         <div class="filters">
-          <select><option selected>Fundação Saúde Itaú</option><option>Todas operadoras via IC</option></select>
+          <input type="text" placeholder="Buscar..." oninput="filtrarCSV_IC(this.value)" style="width:160px"/>
         </div>
       </div>
-      <table>
-        <tr>
-          <th>Data crédito</th><th>Operadora</th><th>Vlr. identificado</th>
-          <th>Vlr. a conciliar</th><th>Protocolos</th><th>Status</th><th></th>
-        </tr>
-        <tr class="clickable" id="c1row1" onclick="c1Select()">
-          <td>29/04/2026</td>
-          <td><span class="tag fs">Fundação Saúde Itaú</span></td>
-          <td style="color:var(--text2)">R$ 238.026,86</td>
-          <td><strong style="color:var(--red)">R$ 1.569,42</strong></td>
-          <td style="color:var(--text2);font-family:var(--mono);font-size:12px">2 protocolos</td>
-          <td id="c1status"><span class="badge conciliar">A conciliar</span></td>
-          <td>
-            <button class="btn green" style="padding:5px 10px;font-size:12px" onclick="event.stopPropagation();c1Select()">
-              <i class="ti ti-search"></i>Buscar remessas
-            </button>
-          </td>
-        </tr>
-      </table>
-      <div class="table-footer">1 crédito selecionado para demonstração · Total base IC: 22 registros</div>
+      <div style="overflow-x:auto">
+        <table id="ic-table">
+          <tr>
+            <th style="width:30px"><input type="checkbox" id="c1-check-all" onclick="toggleAllIC(this)" title="Selecionar todos"/></th>
+            <th>Data Crédito</th><th>Operadora</th><th>Vlr. Identificado</th>
+            <th>Vlr. a Conciliar</th><th>Protocolo</th><th>Lote IC</th><th>Status IC</th>
+          </tr>
+          <tr id="c1-buscar-bar" style="display:none">
+            <td colspan="8" style="padding:10px 14px;background:var(--green-light);border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:12px;font-weight:500;color:var(--green-dark)" id="c1-sel-label">0 protocolo(s) selecionado(s)</span>
+                <button class="btn green" style="padding:6px 14px;font-size:12px" onclick="c1BuscarRemessas()">
+                  <i class="ti ti-search"></i>Buscar remessas no MV
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tbody id="ic-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="ic-footer"></div>
     </div>
 
+    <!-- PROCESSING C1 -->
     <div class="card" id="c1proc" style="display:none">
       <div class="processing-box">
         <div class="spinner green"></div>
@@ -476,79 +543,257 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
       <div class="ficha-actions">
         <div class="ficha-meta"><i class="ti ti-clock" style="color:var(--green)"></i>2 protocolos / 2 remessas encontradas em 4s — próximo passo: conciliar no IC usando as remessas 2370081 e 2370082</div>
         <div class="ficha-btns">
-          <button class="btn danger" onclick="c1Rejeitar()"><i class="ti ti-x"></i>Rejeitar</button>
-          <button class="btn" onclick="alert('Aberto para análise manual.')"><i class="ti ti-edit"></i>Revisar</button>
-          <button class="btn green" onclick="c1Confirmar()"><i class="ti ti-check"></i>Confirmar e ir ao IC</button>
+          <button class="btn" id="c1-btn-revisar" onclick="abrirRevisaoC1()"><i class="ti ti-edit"></i>Revisar</button>
+          <button class="btn green" id="c1-btn-confirmar" onclick="c1Confirmar()"><i class="ti ti-check"></i>Confirmar inspeção</button>
+        </div>
+      </div>
+      <!-- CAMPO REVISÃO INLINE C1 -->
+      <div id="c1-revisao-panel" style="display:none;padding:14px 18px;border-top:1px solid var(--border);background:var(--amber-light);animation:slideIn .2s ease">
+        <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <i class="ti ti-edit" style="font-size:14px"></i>Descreva o motivo da revisão manual
+        </div>
+        <textarea id="c1-revisao-texto" placeholder="Ex: Valor do lote 17466 no MV não bate com o valor identificado no IC. Precisa verificar remessa duplicada..." style="width:100%;height:80px;border:1px solid var(--amber);border-radius:var(--radius-sm);padding:10px;font-size:12px;font-family:var(--font);resize:vertical;background:#fff;outline:none;color:var(--text)"></textarea>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px">
+          <button class="btn" onclick="fecharRevisaoC1()" style="font-size:12px"><i class="ti ti-x"></i>Cancelar</button>
+          <button class="btn" onclick="enviarRevisaoC1()" style="background:var(--amber);color:#fff;border-color:var(--amber);font-size:12px"><i class="ti ti-send"></i>Enviar para revisão manual</button>
         </div>
       </div>
     </div>
   </div>
+  
+    </div><!-- fim c1-sub-creditos -->
+
+  <!-- SUB-PANEL: FILA PARA IC -->
+  <div id="c1-sub-fila" style="display:none;margin-top:0">
+    <div class="card">
+      <div class="card-hdr">
+        <h2><i class="ti ti-plug-connected" style="font-size:15px;color:var(--green)"></i>Fila para integração com IC</h2>
+        <span style="font-size:12px;color:var(--text3)">Créditos com remessas encontradas — prontos para conciliar no IC</span>
+      </div>
+      <table id="c1-fila-table">
+        <tr>
+          <th>Data Crédito</th><th>Operadora</th><th>Vlr. a Conciliar</th>
+          <th>Protocolos</th><th>Remessas MV</th><th>Diferença</th><th>Status</th><th></th>
+        </tr>
+        <tbody id="c1-fila-tbody">
+          <tr id="c1-fila-empty">
+            <td colspan="8" style="text-align:center;padding:32px;color:var(--text3);font-size:12px">
+              <i class="ti ti-inbox" style="font-size:24px;display:block;margin-bottom:8px;opacity:.4"></i>
+              Nenhum crédito na fila — confirme uma inspeção na aba "Créditos IC"
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer" id="c1-fila-footer" style="display:none"></div>
+    </div>
+  </div><!-- fim c1-sub-fila -->
+
+  <!-- SUB-PANEL: REVISÃO MANUAL C1 -->
+  <div id="c1-sub-revisao" style="display:none;margin-top:0">
+    <div class="card">
+      <div class="card-hdr">
+        <h2><i class="ti ti-edit" style="font-size:15px;color:var(--amber)"></i>Revisão manual</h2>
+        <span style="font-size:12px;color:var(--text3)">Créditos que precisam de análise antes de conciliar no IC</span>
+      </div>
+      <table id="c1-revisao-table">
+        <tr>
+          <th>Data Crédito</th><th>Operadora</th><th>Vlr. a Conciliar</th>
+          <th>Motivo da revisão</th><th>Registrado em</th><th>Status</th>
+        </tr>
+        <tbody id="c1-revisao-tbody">
+          <tr id="c1-revisao-empty">
+            <td colspan="6" style="text-align:center;padding:32px;color:var(--text3);font-size:12px">
+              <i class="ti ti-inbox" style="font-size:24px;display:block;margin-bottom:8px;opacity:.4"></i>
+              Nenhum crédito em revisão
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer" id="c1-revisao-footer" style="display:none"></div>
+    </div>
+  </div><!-- fim c1-sub-revisao -->
 
   <!-- ═══════════ CENÁRIO 2 ═══════════ -->
   <div class="panel" id="panel2">
-    <div style="margin-bottom:16px;margin-top:16px">
-      <h1 style="font-size:16px;font-weight:500;margin-bottom:4px">Relatório de créditos pendentes</h1>
-      <p style="font-size:12px;color:var(--text2)">MV — HMDCOB002-01 · Selecione um crédito para inspecionar e iniciar a pré-conciliação</p>
+
+    <!-- ABAS INTERNAS C2 -->
+    <div style="display:flex;gap:0;margin-top:16px;margin-bottom:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;max-width:800px">
+      <button id="c2tab-relatorio" onclick="switchC2Tab('relatorio')" style="flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:var(--purple-light);color:var(--purple);display:flex;align-items:center;gap:8px;font-family:var(--font);border-bottom:2px solid var(--purple)">
+        <i class="ti ti-table-import" style="font-size:15px"></i>Relatório MV
+        <span style="font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;background:#AFA9EC;color:var(--purple-dark);font-weight:600" id="c2-badge-relatorio">0</span>
+      </button>
+      <button id="c2tab-inspecionados" onclick="switchC2Tab('inspecionados')" style="flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);display:flex;align-items:center;gap:8px;font-family:var(--font);border-bottom:2px solid transparent;border-left:1px solid var(--border)">
+        <i class="ti ti-circle-check" style="font-size:15px"></i>Inspecionados
+        <span style="font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;background:var(--surface2);color:var(--text3);font-weight:600" id="c2-badge-inspecionados">0</span>
+      </button>
+      <button id="c2tab-revisao" onclick="switchC2Tab('revisao')" style="flex:1;padding:10px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2);display:flex;align-items:center;gap:8px;font-family:var(--font);border-bottom:2px solid transparent;border-left:1px solid var(--border)">
+        <i class="ti ti-edit" style="font-size:15px"></i>Revisão manual
+        <span style="font-size:11px;padding:2px 8px;border-radius:20px;margin-left:auto;background:var(--surface2);color:var(--text3);font-weight:600" id="c2-badge-revisao">0</span>
+      </button>
     </div>
 
-    <div class="card">
+    <!-- SUB-PANEL: RELATÓRIO MV -->
+    <div id="c2-sub-relatorio" style="margin-top:16px">
+    <!-- UPLOAD CSV MV -->
+    <div class="card" id="c2-csv-upload-card">
       <div class="card-hdr">
-        <h2><i class="ti ti-table" style="font-size:15px;color:var(--text3)"></i>Créditos de convênio — período 04/2026 a 05/2026</h2>
-        <div class="filters">
-          <select><option selected>Justiça Federal</option><option>Todas operadoras</option></select>
-          <input type="text" placeholder="Buscar..." style="width:130px"/>
+        <h2><i class="ti ti-file-spreadsheet" style="font-size:15px;color:var(--purple)"></i>Importar relatório MV — HMDCOB002-01</h2>
+      </div>
+      <div style="padding:20px 18px">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+          Faça upload do arquivo CSV exportado do relatório <strong>HMDCOB002-01</strong> do MV. O sistema carrega os créditos automaticamente para seleção.
+        </div>
+        <div class="drop-box" id="box-csv-mv" onclick="simCSV()" style="max-width:480px">
+          <input type="file" accept=".csv" onchange="uploadedCSV(event)" onclick="event.stopPropagation()"/>
+          <span class="drop-icon"><i class="ti ti-table-import" id="icon-csv"></i></span>
+          <div class="drop-label">HMDCOB002-01_creditos.csv</div>
+          <div class="drop-hint">Arquivo CSV · exportado do ERP MV</div>
+          <div class="drop-ok" id="ok-csv"><i class="ti ti-check"></i> Relatório carregado — créditos disponíveis abaixo</div>
         </div>
       </div>
-      <table>
-        <tr><th>Data crédito</th><th>Fornecedor</th><th>Banco</th><th>Documento</th><th>Valor lançado</th><th>Dias em aberto</th><th>Status</th><th></th></tr>
-        <tr class="clickable" id="c2row1" onclick="c2Select()">
-          <td>29/04/2026</td>
-          <td><span class="tag jf">Justiça Federal 1º Grau MG</span></td>
-          <td>Itaú 90219-8</td>
-          <td style="font-weight:500;font-family:var(--mono)">2904</td>
-          <td><strong style="font-size:14px">R$ 76.811,62</strong></td>
-          <td style="color:var(--red);font-weight:500">26 dias</td>
-          <td id="c2status"><span class="badge pend"><i class="ti ti-clock" style="font-size:11px"></i>Pendente</span></td>
-          <td><button class="insp-btn" onclick="event.stopPropagation();c2Select()"><i class="ti ti-search" style="font-size:13px"></i>Inspecionar</button></td>
-        </tr>
-      </table>
-      <div class="table-footer">1 crédito pendente · Total: R$ 76.811,62</div>
     </div>
 
+    <!-- TABELA DINÂMICA (aparece após upload CSV) -->
+    <div class="card" id="c2-table-card" style="display:none">
+      <div class="card-hdr">
+        <h2><i class="ti ti-table" style="font-size:15px;color:var(--text3)"></i>Créditos de convênio — HMDCOB002-01</h2>
+        <div class="filters">
+          <input type="text" placeholder="Buscar..." oninput="filtrarCSV(this.value)" style="width:160px"/>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="csv-table">
+          <tr>
+            <th>Unidade</th><th>Código</th><th>Código Banco</th><th>Banco</th>
+            <th>Documento</th><th>Data Crédito</th><th>Fornecedor</th>
+            <th>Valor Lançado</th><th>Status</th><th></th>
+          </tr>
+          <tbody id="csv-tbody"></tbody>
+        </table>
+      </div>
+      <div class="table-footer" id="csv-footer"></div>
+    </div>
+
+    </div><!-- fim c2-sub-relatorio -->
+
+    <!-- SUB-PANEL: FILA DE PRÉ-CONCILIAÇÃO -->
+    <div id="c2-sub-fila" style="margin-top:16px;display:none">
+      <div class="card">
+        <div class="card-hdr">
+          <h2><i class="ti ti-list-check" style="font-size:15px;color:var(--purple)"></i>Fila de pré-conciliação</h2>
+          <span style="font-size:12px;color:var(--text3)">Créditos processados pelo motor ConcilIA</span>
+        </div>
+        <table id="fila-table">
+          <tr>
+            <th>Data Crédito</th><th>Fornecedor</th><th>Banco</th><th>Documento</th>
+            <th>Valor Lançado</th><th>Liq. NF(s)</th><th>Diferença</th><th>Status</th><th></th>
+          </tr>
+          <tbody id="fila-tbody">
+            <tr id="fila-empty-row">
+              <td colspan="9" style="text-align:center;padding:32px;color:var(--text3);font-size:12px">
+                <i class="ti ti-inbox" style="font-size:24px;display:block;margin-bottom:8px;opacity:.4"></i>
+                Nenhum crédito pré-conciliado ainda — inspecione um crédito na aba "Relatório MV"
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer" id="fila-footer" style="display:none"></div>
+      </div>
+    </div><!-- fim c2-sub-fila -->
+
+    <!-- SUB-PANEL: REVISÃO MANUAL -->
+    <div id="c2-sub-revisao" style="margin-top:16px;display:none">
+      <div class="card">
+        <div class="card-hdr">
+          <h2><i class="ti ti-edit" style="font-size:15px;color:var(--amber)"></i>Revisão manual</h2>
+          <span style="font-size:12px;color:var(--text3)">Créditos que precisam de análise manual antes de prosseguir</span>
+        </div>
+        <table id="revisao-table">
+          <tr>
+            <th>Data Crédito</th><th>Fornecedor</th><th>Documento</th>
+            <th>Valor Lançado</th><th>Motivo da revisão</th><th>Registrado em</th><th>Status</th>
+          </tr>
+          <tbody id="revisao-tbody">
+            <tr id="revisao-empty-row">
+              <td colspan="7" style="text-align:center;padding:32px;color:var(--text3);font-size:12px">
+                <i class="ti ti-inbox" style="font-size:24px;display:block;margin-bottom:8px;opacity:.4"></i>
+                Nenhum crédito em revisão — use o botão "Revisar" na ficha de inspeção
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer" id="revisao-footer" style="display:none"></div>
+      </div>
+    </div><!-- fim c2-sub-revisao -->
+
+    <!-- PASSO 1: Upload Demonstrativo de Pagamento -->
     <div class="card" id="c2upload" style="display:none">
       <div class="card-hdr">
         <h2><i class="ti ti-file-upload" style="color:var(--purple)"></i>Pré-conciliação — R$ 76.811,62 · Justiça Federal · 29/04/2026</h2>
-        <span style="font-size:11px;color:var(--text3)">Passo 1 de 2</span>
+        <span style="font-size:11px;background:var(--purple-light);color:var(--purple);padding:3px 10px;border-radius:20px;font-weight:500">Passo 1 de 3 — Demonstrativo de Pagamento</span>
       </div>
       <div class="upload-body">
         <div class="upload-intro">
-          <h3>Faça upload dos demonstrativos do ePro-Social</h3>
-          <p>Baixe os arquivos no portal ePro-Social (Relatórios → Demonstrativo de Pagamento e Demonstrativo de Glosas Analítico) e faça o upload abaixo. O motor extrai e consolida os dados automaticamente.</p>
+          <h3>Faça upload do Demonstrativo de Pagamento</h3>
+          <p>Acesse o portal ePro-Social → Relatórios → Demonstrativo de Pagamento e faça o download do PDF. O motor vai identificar todas as notas fiscais e calcular as melhores combinações para fechar o crédito bancário de R$ 76.811,62.</p>
         </div>
-        <div class="upload-grid">
+        <div class="upload-grid" style="grid-template-columns:1fr 1fr">
           <div class="valor-box">
             <label>Valor do crédito (MV)</label>
             <div class="valor-row"><span class="valor-pfx">R$</span><input class="valor-inp" type="text" value="76.811,62"/></div>
             <div class="valor-src"><i class="ti ti-table" style="font-size:12px"></i>HMDCOB002-01</div>
           </div>
-          <div class="drop-box" id="box-pagto" onclick="sim('pagto')">
-            <input type="file" accept=".pdf" onchange="uploaded(event,'pagto')" onclick="event.stopPropagation()"/>
+          <div class="drop-box" id="box-pagto" onclick="simPagto()">
+            <input type="file" accept=".pdf" onchange="uploadedPagto(event)" onclick="event.stopPropagation()"/>
             <span class="drop-icon"><i class="ti ti-file-invoice" id="icon-pagto"></i></span>
             <div class="drop-label">Demonstrativo de Pagamento</div>
             <div class="drop-hint">PDF · ePro-Social TRF019</div>
-            <div class="drop-ok" id="ok-pagto"><i class="ti ti-check"></i> NF 35 + NF 37 detectadas</div>
-          </div>
-          <div class="drop-box" id="box-glosas" onclick="sim('glosas')">
-            <input type="file" accept=".pdf" onchange="uploaded(event,'glosas')" onclick="event.stopPropagation()"/>
-            <span class="drop-icon"><i class="ti ti-file-minus" id="icon-glosas"></i></span>
-            <div class="drop-label">Demonstrativo de Glosas</div>
-            <div class="drop-hint">PDF · ePro-Social TRF016</div>
-            <div class="drop-ok" id="ok-glosas"><i class="ti ti-check"></i> Glosas extraídas</div>
+            <div class="drop-ok" id="ok-pagto"><i class="ti ti-check"></i> 10 NFs identificadas no demonstrativo</div>
           </div>
         </div>
         <div class="upload-footer">
-          <div class="upload-status" id="upload-status"><i class="ti ti-info-circle" style="font-size:14px"></i>Faça upload dos 2 demonstrativos para continuar</div>
-          <button class="btn purple" id="processar-btn" disabled onclick="processar()"><i class="ti ti-cpu"></i>Processar documentos</button>
+          <div class="upload-status" id="upload-status-pagto">
+            <i class="ti ti-info-circle" style="font-size:14px"></i>
+            Faça upload do Demonstrativo de Pagamento para o motor identificar as combinações
+          </div>
+          <button class="btn purple" id="analisar-pagto-btn" disabled onclick="analisarPagamento()">
+            <i class="ti ti-cpu"></i>Analisar pagamento
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSO 3: Upload Demonstrativo de Glosas (aparece após seleção da combinação) -->
+    <div class="card" id="c2upload-glosas" style="display:none">
+      <div class="card-hdr">
+        <h2><i class="ti ti-file-minus" style="color:var(--purple)"></i>Upload do Demonstrativo de Glosas</h2>
+        <span style="font-size:11px;background:var(--purple-light);color:var(--purple);padding:3px 10px;border-radius:20px;font-weight:500">Passo 3 de 3 — Detalhamento de glosas</span>
+      </div>
+      <div class="upload-body">
+        <div class="upload-intro">
+          <h3 id="glosas-titulo">Faça upload das glosas para NF 35 + NF 37</h3>
+          <p id="glosas-desc">Você selecionou a Combinação 1 (NF 35 + NF 37). Agora acesse o portal ePro-Social → Relatórios → Demonstrativo de Glosas Analítico, filtre pelas notas fiscais identificadas e faça o upload do PDF.</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center" id="nf-chips-glosas">
+          <span style="font-size:11px;color:var(--text3)">NFs da combinação selecionada:</span>
+        </div>
+        <div class="upload-grid" style="grid-template-columns:1fr">
+          <div class="drop-box" id="box-glosas" onclick="simGlosas()">
+            <input type="file" accept=".pdf" onchange="uploadedGlosas(event)" onclick="event.stopPropagation()"/>
+            <span class="drop-icon"><i class="ti ti-file-minus" id="icon-glosas"></i></span>
+            <div class="drop-label">Demonstrativo de Glosas Analítico</div>
+            <div class="drop-hint">PDF · ePro-Social TRF016</div>
+            <div class="drop-ok" id="ok-glosas"><i class="ti ti-check"></i> Glosas extraídas com sucesso</div>
+          </div>
+        </div>
+        <div class="upload-footer">
+          <div class="upload-status" id="upload-status-glosas">
+            <i class="ti ti-info-circle" style="font-size:14px"></i>
+            Faça upload do Demonstrativo de Glosas para processar a ficha completa
+          </div>
+          <button class="btn purple" id="processar-btn" disabled onclick="processar()">
+            <i class="ti ti-cpu"></i>Processar documentos
+          </button>
         </div>
       </div>
     </div>
@@ -556,8 +801,70 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
     <div class="card" id="c2proc" style="display:none">
       <div class="processing-box">
         <div class="spinner purple"></div>
-        <div class="processing-title">Extraindo e consolidando dados dos PDFs...</div>
+        <div class="processing-title" id="proc-title">Analisando demonstrativo de pagamento...</div>
         <div class="processing-step" id="c2step">Lendo Demonstrativo de Pagamento...</div>
+      </div>
+    </div>
+
+    <div class="combo-section" id="c2combinacoes" style="display:none">
+      <div class="combo-hdr">
+        <h2><i class="ti ti-git-branch" style="color:var(--purple)"></i>Motor encontrou combinações de NFs — selecione para analisar</h2>
+        <span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Análise concluída</span>
+      </div>
+      <div class="combo-body">
+        <div class="combo-intro">
+          O motor leu o Demonstrativo de Pagamento, identificou <strong>10 notas fiscais</strong> e testou todas as combinações possíveis contra o crédito bancário selecionado. As melhores combinações estão abaixo — selecione a que deseja analisar em detalhe.
+        </div>
+
+        <div class="combo-grid">
+          <!-- Combinação 1 -->
+          <div class="combo-card" id="combo0" onclick="selecionarCombinacao(0)">
+            <div class="combo-rank">
+              <span class="combo-rank-num">Combinação 1</span>
+              <span class="combo-score-pill score-100">100% match</span>
+            </div>
+            <div class="combo-nfs">
+              <span class="nf-chip">NF 35</span>
+              <span class="plus-sign">+</span>
+              <span class="nf-chip">NF 37</span>
+            </div>
+            <div class="combo-values">
+              <div class="cv-item"><div class="cv-lbl">Crédito MV</div><div class="cv-val green">R$ 76.811,62</div></div>
+              <div class="cv-item"><div class="cv-lbl">Soma NFs</div><div class="cv-val green">R$ 76.811,62</div></div>
+              <div class="cv-item"><div class="cv-lbl">Diferença</div><div class="cv-val green">R$ 0,00 ✓</div></div>
+            </div>
+          </div>
+
+          <!-- Combinação 2 -->
+          <div class="combo-card" id="combo1" onclick="selecionarCombinacao(1)">
+            <div class="combo-rank">
+              <span class="combo-rank-num">Combinação 2</span>
+              <span class="combo-score-pill score-95">95% match</span>
+            </div>
+            <div class="combo-nfs">
+              <span class="nf-chip">NF 831</span>
+              <span class="plus-sign">+</span>
+              <span class="nf-chip">NF 70</span>
+              <span class="plus-sign">+</span>
+              <span class="nf-chip">NF 37</span>
+            </div>
+            <div class="combo-values">
+              <div class="cv-item"><div class="cv-lbl">Crédito MV</div><div class="cv-val green">R$ 76.811,62</div></div>
+              <div class="cv-item"><div class="cv-lbl">Soma NFs</div><div class="cv-val purple">R$ 72.950,80</div></div>
+              <div class="cv-item"><div class="cv-lbl">Diferença</div><div class="cv-val red">R$ 3.860,82</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="combo-footer">
+          <div class="combo-hint-txt" id="combo-hint">
+            <i class="ti ti-hand-click" style="font-size:14px"></i>
+            Selecione uma combinação acima para ver a ficha detalhada com PEGs e glosas
+          </div>
+          <button class="btn purple" id="btn-analisar" disabled onclick="analisarCombinacao()">
+            <i class="ti ti-upload"></i>Confirmar e fazer upload das glosas
+          </button>
+        </div>
       </div>
     </div>
 
@@ -568,8 +875,8 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
       </div>
       <div class="score-wrap">
         <span class="score-lbl">Score de confiança</span>
-        <div class="bar"><div class="fill-purple" style="width:94%"></div></div>
-        <span class="score-pct purple">94% — NF 35 + NF 37 fecham o crédito bancário</span>
+        <div class="bar"><div class="fill-purple" style="width:95%"></div></div>
+        <span class="score-pct purple">95% — NF 35 + NF 37 fecham o crédito bancário</span>
       </div>
       <div class="cred-hdr">
         <div class="cred-fields">
@@ -593,8 +900,9 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
               <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Demonstrativo de pagamento</div>
               <div class="field"><span class="k">Processo</span><span class="v blue">5841226</span></div>
               <div class="field"><span class="k">Nota fiscal</span><span class="v">35</span></div>
-              <div class="field"><span class="k">Valor solicitado</span><span class="v">R$ 905,94</span></div>
+              <div class="field"><span class="k">Valor solicitado</span><span class="v">R$ 33.200,11</span></div>
               <div class="field"><span class="k">Glosa total</span><span class="v red">R$ 404,45</span></div>
+              <div class="field"><span class="k">Valor devido</span><span class="v green">R$ 32.795,66</span></div>
               <div class="field"><span class="k">IRRF</span><span class="v red">R$ 1.942,20</span></div>
               <div class="field"><span class="k" style="font-weight:700">Valor líquido</span><span class="v green" style="font-size:14px">R$ 30.853,46</span></div>
             </div>
@@ -628,8 +936,9 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
               <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Demonstrativo de pagamento</div>
               <div class="field"><span class="k">Processo</span><span class="v blue">5928626</span></div>
               <div class="field"><span class="k">Nota fiscal</span><span class="v">37</span></div>
-              <div class="field"><span class="k">Valor solicitado</span><span class="v">R$ 27.259,63</span></div>
+              <div class="field"><span class="k">Valor solicitado</span><span class="v">R$ 75.709,51</span></div>
               <div class="field"><span class="k">Glosa total</span><span class="v red">R$ 25.322,34</span></div>
+              <div class="field"><span class="k">Valor devido</span><span class="v green">R$ 50.387,17</span></div>
               <div class="field"><span class="k">IRRF</span><span class="v red">R$ 4.429,01</span></div>
               <div class="field"><span class="k" style="font-weight:700">Valor líquido</span><span class="v green" style="font-size:14px">R$ 45.958,16</span></div>
             </div>
@@ -672,9 +981,19 @@ tr.sel-purple td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
       <div class="ficha-actions">
         <div class="ficha-meta"><i class="ti ti-clock" style="color:var(--purple)"></i>2 PDFs processados em 6s — dados extraídos e consolidados automaticamente</div>
         <div class="ficha-btns">
-          <button class="btn danger" onclick="c2Rejeitar()"><i class="ti ti-x"></i>Rejeitar</button>
-          <button class="btn" onclick="alert('Aberto para análise manual.')"><i class="ti ti-edit"></i>Revisar</button>
-          <button class="btn purple" onclick="c2Confirmar()"><i class="ti ti-check"></i>Confirmar baixa no MV</button>
+          <button class="btn" id="btn-revisar-c2" onclick="abrirRevisao()"><i class="ti ti-edit"></i>Revisar</button>
+          <button class="btn purple" id="btn-confirmar-poc" onclick="c2Confirmar()"><i class="ti ti-check"></i>Confirmar inspeção</button>
+        </div>
+      </div>
+      <!-- CAMPO DE REVISÃO INLINE -->
+      <div id="revisao-panel" style="display:none;padding:14px 18px;border-top:1px solid var(--border);background:var(--amber-light);animation:slideIn .2s ease">
+        <div style="font-size:12px;font-weight:600;color:var(--amber);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+          <i class="ti ti-edit" style="font-size:14px"></i>Descreva o motivo da revisão manual
+        </div>
+        <textarea id="revisao-texto" placeholder="Ex: Valor líquido da NF 37 não fecha com o crédito bancário. Precisa verificar se há glosas adicionais não listadas no demonstrativo..." style="width:100%;height:80px;border:1px solid var(--amber);border-radius:var(--radius-sm);padding:10px;font-size:12px;font-family:var(--font);resize:vertical;background:#fff;outline:none;color:var(--text)"></textarea>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px">
+          <button class="btn" onclick="fecharRevisao()" style="font-size:12px"><i class="ti ti-x"></i>Cancelar</button>
+          <button class="btn" onclick="enviarRevisao()" style="background:var(--amber);color:#fff;border-color:var(--amber);font-size:12px"><i class="ti ti-send"></i>Enviar para revisão manual</button>
         </div>
       </div>
     </div>
@@ -740,7 +1059,7 @@ function switchCenario(n){
 }
 
 function c1Select(){
-  document.getElementById('c1row1').classList.add('sel');
+  // row já foi selecionado por c1SelectRow
   document.getElementById('c1proc').style.display='block';
   document.getElementById('c1ficha').style.display='none';
   document.getElementById('c1proc').scrollIntoView({behavior:'smooth',block:'center'});
@@ -758,53 +1077,513 @@ function swProto(n){
   document.getElementById('pp'+n).classList.add('active');
 }
 
-function c1Confirmar(){
-  alert('Remessas 2370081 e 2370082 prontas!\n\nAbra o IC → Conciliar Faturamento → filtre pelas remessas para concluir.');
-  document.getElementById('c1ficha').style.display='none';
-  document.getElementById('c1status').innerHTML='<span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Conciliado</span>';
-  document.getElementById('c1row1').classList.remove('sel');
+// ── ABAS C1 ───────────────────────────────────────
+var c1FilaItems = [];
+var c1RevisaoItems = [];
+
+function switchC1Tab(tab){
+  document.getElementById('c1-sub-creditos').style.display = tab==='creditos' ? 'block' : 'none';
+  document.getElementById('c1-sub-fila').style.display = tab==='fila' ? 'block' : 'none';
+  document.getElementById('c1-sub-revisao').style.display = tab==='revisao' ? 'block' : 'none';
+  if(tab!=='creditos'){
+    document.getElementById('c1ficha').style.display='none';
+  }
+  var tabs=['creditos','fila','revisao'];
+  tabs.forEach(function(t){
+    var el=document.getElementById('c1tab-'+t);
+    if(!el) return;
+    var active=t===tab;
+    el.style.background=active?'var(--green-light)':'transparent';
+    el.style.color=active?'var(--green-dark)':'var(--text2)';
+    el.style.borderBottom=active?'2px solid var(--green)':'2px solid transparent';
+  });
 }
-function c1Rejeitar(){document.getElementById('c1ficha').style.display='none';alert('Enviado para revisão manual.');}
+
+function abrirRevisaoC1(){
+  var panel=document.getElementById('c1-revisao-panel');
+  panel.style.display=panel.style.display==='none'?'block':'none';
+  if(panel.style.display==='block'){
+    document.getElementById('c1-revisao-texto').focus();
+    document.getElementById('c1-btn-confirmar').disabled=true;
+    document.getElementById('c1-btn-confirmar').style.opacity='0.4';
+  } else {
+    document.getElementById('c1-btn-confirmar').disabled=false;
+    document.getElementById('c1-btn-confirmar').style.opacity='1';
+  }
+}
+
+function fecharRevisaoC1(){
+  document.getElementById('c1-revisao-panel').style.display='none';
+  document.getElementById('c1-revisao-texto').value='';
+  document.getElementById('c1-btn-confirmar').disabled=false;
+  document.getElementById('c1-btn-confirmar').style.opacity='1';
+}
+
+function enviarRevisaoC1(){
+  var motivo=document.getElementById('c1-revisao-texto').value.trim();
+  if(!motivo){alert('Descreva o motivo da revisão antes de enviar.');return;}
+  var now=new Date();
+  var hora=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  c1RevisaoItems.push({
+    dataCredito:'29/04/2026',
+    operadora:'Fundação Saúde Itaú',
+    valor:'R$ 1.569,42',
+    motivo:motivo,
+    hora:hora
+  });
+  // Atualizar status de TODOS os protocolos selecionados
+  var checkedAll = document.querySelectorAll('.ic-check:checked');
+  if(!checkedAll.length) checkedAll = document.querySelectorAll('.ic-check');
+  checkedAll.forEach(function(cb){
+    var idx = parseInt(cb.dataset.idx);
+    var sc = document.getElementById('c1status-'+idx);
+    if(sc) sc.innerHTML='<span class="badge" style="background:var(--amber-light);color:var(--amber)"><i class="ti ti-edit" style="font-size:11px"></i>Em revisão</span>';
+    var r = document.getElementById('c1row-'+idx);
+    if(r){r.onclick=null;r.style.cursor='default';r.classList.remove('sel');}
+    cb.disabled=true;
+  });
+  var bar2=document.getElementById('c1-buscar-bar');
+  if(bar2) bar2.style.display='none';
+  var mc=document.getElementById('c1-check-all');
+  if(mc) mc.checked=false;
+  // Badge
+  document.getElementById('c1-badge-revisao').textContent=c1RevisaoItems.length;
+  document.getElementById('c1-badge-revisao').style.background='var(--amber-light)';
+  document.getElementById('c1-badge-revisao').style.color='var(--amber)';
+  // Renderizar
+  renderC1Revisao();
+  document.getElementById('c1-revisao-panel').style.display='none';
+  document.getElementById('c1ficha').style.display='none';
+  setTimeout(function(){switchC1Tab('revisao');},600);
+}
+
+function renderC1Revisao(){
+  var tbody=document.getElementById('c1-revisao-tbody');
+  var empty=document.getElementById('c1-revisao-empty');
+  if(c1RevisaoItems.length===0){if(empty)empty.style.display='';return;}
+  if(empty)empty.style.display='none';
+  tbody.innerHTML='';
+  c1RevisaoItems.forEach(function(item){
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td>'+item.dataCredito+'</td>'+
+      '<td><span class="tag fs" style="font-size:11px">'+item.operadora+'</span></td>'+
+      '<td style="font-weight:500;color:var(--red)">'+item.valor+'</td>'+
+      '<td style="font-size:12px;color:var(--text2);max-width:220px">'+item.motivo+'</td>'+
+      '<td style="font-size:12px;color:var(--text3)">'+item.hora+'</td>'+
+      '<td><span class="badge" style="background:var(--amber-light);color:var(--amber)"><i class="ti ti-edit" style="font-size:11px"></i>Em revisão</span></td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('c1-revisao-footer').style.display='block';
+  document.getElementById('c1-revisao-footer').textContent=c1RevisaoItems.length+' crédito(s) em revisão';
+}
+
+function c1Confirmar(){
+  // Atualizar status e bloquear linha
+  // Atualizar status de TODOS os protocolos selecionados como Inspecionado
+  var checkedBoxes = document.querySelectorAll('.ic-check:checked');
+  if(checkedBoxes.length === 0){
+    // fallback para linha única
+    var rowIdx = window.c1RowSelecionado !== undefined ? window.c1RowSelecionado : 0;
+    checkedBoxes = [document.querySelector('.ic-check[data-idx="'+rowIdx+'"]')].filter(Boolean);
+  }
+  checkedBoxes.forEach(function(cb){
+    var idx = cb ? parseInt(cb.dataset.idx) : 0;
+    var statusCell = document.getElementById('c1status-'+idx);
+    if(statusCell) statusCell.innerHTML='<span class="badge done" style="background:var(--green-light);color:var(--green-dark)"><i class="ti ti-check" style="font-size:11px"></i>Inspecionado</span>';
+    var row = document.getElementById('c1row-'+idx);
+    if(row){
+      row.onclick=null; row.style.cursor='default'; row.classList.remove('sel');
+      if(cb) cb.disabled=true;
+    }
+  });
+  // Esconder barra de seleção
+  var bar = document.getElementById('c1-buscar-bar');
+  if(bar) bar.style.display='none';
+  var masterCb = document.getElementById('c1-check-all');
+  if(masterCb) masterCb.checked=false;
+  // Adicionar na fila IC
+  c1FilaItems.push({
+    dataCredito:'29/04/2026', operadora:'Fundação Saúde Itaú',
+    valor:'R$ 1.569,42', protocolos:'20036306 · 20036307',
+    remessas:'2370081 · 2370082', diferenca:'R$ 0,00'
+  });
+  // Badge
+  document.getElementById('c1-badge-fila').textContent=c1FilaItems.length;
+  document.getElementById('c1-badge-fila').style.background='var(--green-light)';
+  document.getElementById('c1-badge-fila').style.color='var(--green-dark)';
+  // Atualizar métrica "Conciliados hoje"
+  var concHoje=document.querySelector('.metric .val.green');
+  if(concHoje) concHoje.textContent=c1FilaItems.length;
+  // Renderizar fila
+  renderC1Fila();
+  document.getElementById('c1ficha').style.display='none';
+  setTimeout(function(){switchC1Tab('fila');},600);
+}
+
+function renderC1Fila(){
+  var tbody=document.getElementById('c1-fila-tbody');
+  var empty=document.getElementById('c1-fila-empty');
+  if(c1FilaItems.length===0){if(empty)empty.style.display='';return;}
+  if(empty)empty.style.display='none';
+  tbody.innerHTML='';
+  c1FilaItems.forEach(function(item){
+    var tr=document.createElement('tr');
+    tr.innerHTML=
+      '<td>'+item.dataCredito+'</td>'+
+      '<td><span class="tag fs" style="font-size:11px">'+item.operadora+'</span></td>'+
+      '<td style="font-weight:500;color:var(--red)">'+item.valor+'</td>'+
+      '<td style="font-size:12px;font-family:var(--mono)">'+item.protocolos+'</td>'+
+      '<td style="font-size:12px;font-family:var(--mono);color:var(--green)">'+item.remessas+'</td>'+
+      '<td style="color:var(--green);font-weight:600">'+item.diferenca+' ✓</td>'+
+      '<td><span class="badge done" style="background:var(--green-light);color:var(--green-dark)"><i class="ti ti-circle-check" style="font-size:11px"></i>Inspecionado</span></td>'+
+      '<td><button onclick="extrairTabelaC1()" class="btn" style="padding:5px 10px;font-size:11px;border-color:var(--green);color:var(--green)"><i class="ti ti-table-export"></i>Extrair</button></td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('c1-fila-footer').style.display='block';
+  document.getElementById('c1-fila-footer').textContent=c1FilaItems.length+' crédito(s) na fila para IC';
+}
+
+function c1Rejeitar(){document.getElementById('c1ficha').style.display='none';}
 
 // ── CENÁRIO 2 ────────────────────────────────────────
 var pagtoOk=false,glosasOk=false;
 
 function c2Select(){
+  c2SelectRow(0, csvData[0] || {valor:'76.811,62'});
+}
+function c2Select_old(){
   document.getElementById('c2row1').classList.add('sel-purple');
   document.getElementById('c2upload').style.display='block';
+  document.getElementById('c2upload-glosas').style.display='none';
+  document.getElementById('c2proc').style.display='none';
+  document.getElementById('c2combinacoes').style.display='none';
+  document.getElementById('c2ficha').style.display='none';
   document.getElementById('c2upload').scrollIntoView({behavior:'smooth'});
 }
 
-function sim(t){setTimeout(function(){mark(t);},300);}
-function uploaded(e,t){if(e.target.files.length>0)mark(t);}
-function mark(t){
-  document.getElementById('box-'+t).classList.add('has-file');
-  document.getElementById('icon-'+t).style.color='var(--purple)';
-  if(t==='pagto')pagtoOk=true;
-  if(t==='glosas')glosasOk=true;
-  var s=document.getElementById('upload-status'),btn=document.getElementById('processar-btn');
-  if(pagtoOk&&glosasOk){
-    btn.disabled=false;
-    s.innerHTML='<i class="ti ti-check" style="font-size:14px;color:var(--purple)"></i>2 documentos prontos — clique em "Processar documentos"';
-  } else {
-    s.innerHTML='<i class="ti ti-info-circle" style="font-size:14px"></i>Falta '+(pagtoOk?'o Demonstrativo de Glosas':'o Demonstrativo de Pagamento');
-  }
+function simPagto(){setTimeout(function(){markPagto();},300);}
+function uploadedPagto(e){if(e.target.files&&e.target.files.length>0)markPagto();}
+function markPagto(){
+  document.getElementById('box-pagto').classList.add('has-file');
+  document.getElementById('icon-pagto').style.color='var(--purple)';
+  document.getElementById('analisar-pagto-btn').disabled=false;
+  document.getElementById('upload-status-pagto').innerHTML='<i class="ti ti-check" style="font-size:14px;color:var(--purple)"></i>Demonstrativo carregado — clique em "Analisar pagamento"';
 }
 
-function processar(){
+function analisarPagamento(){
   document.getElementById('c2upload').style.display='none';
   document.getElementById('c2proc').style.display='block';
   document.getElementById('c2proc').scrollIntoView({behavior:'smooth'});
-  var steps=['Lendo Demonstrativo de Pagamento (TRF019)...','Identificando NFs: 35 (Processo 5841226) e 37 (Processo 5928626)...','Extraindo valores: solicitado, glosa, devido, IRRF, líquido...','Lendo Demonstrativo de Glosas Analítico (TRF016)...','Extraindo PEG 207793 — 3 itens de glosa...','Extraindo PEG 207807 — 2 itens de glosa...','Extraindo PEGs 208094 a 208118 — NF 37...','R$ 30.853,46 + R$ 45.958,16 = R$ 76.811,62 ✓ — consolidando ficha...'];
+  // Detectar qual crédito está sendo analisado pelo documento
+  var doc = window.creditoSelecionado ? window.creditoSelecionado.documento : '2904';
+  var isDoc2904 = doc === '2904';
+  var steps, combo1, combo2;
+  if(isDoc2904){
+    // Registro 1: fecha 100%
+    steps=[
+      'Lendo Demonstrativo de Pagamento (TRF019)...',
+      'Identificando notas fiscais no demonstrativo...',
+      'NFs encontradas: 35, 37, 831, 70, 12, 44, 98, 102, 115, 76 — extraindo valores...',
+      'Calculando combinações possíveis de NFs...',
+      'Testando combinações contra crédito bancário R$ 76.811,62...',
+      'Ranqueando combinações por score de proximidade...',
+      'Combinação 1: NF 35 + NF 37 = R$ 76.811,62 — score 100% ✓',
+      'Combinação 2: NF 831 + NF 70 + NF 37 = R$ 72.950,80 — score 95%',
+      'Resultado pronto — aguardando seleção do analista...'
+    ];
+    window.combosAtivos = [
+      {label:'Combinação 1',nfs:['NF 35','NF 37'],credito:'R$ 76.811,62',soma:'R$ 76.811,62',diff:'R$ 0,00',score:'100%',scoreClass:'score-100',desc:'NF 35 (Processo 5841226) + NF 37 (Processo 5928626)'},
+      {label:'Combinação 2',nfs:['NF 831','NF 70','NF 37'],credito:'R$ 76.811,62',soma:'R$ 72.950,80',diff:'R$ 3.860,82',score:'95%',scoreClass:'score-95',desc:'NF 831 + NF 70 + NF 37'}
+    ];
+  } else {
+    // Registro 2: não fecha perfeitamente — melhor combinação ~87%
+    steps=[
+      'Lendo Demonstrativo de Pagamento (TRF019)...',
+      'Identificando notas fiscais no demonstrativo...',
+      'NFs encontradas: 35, 37, 831, 70, 12, 44, 98, 102, 115, 76 — extraindo valores...',
+      'Calculando combinações possíveis de NFs...',
+      'Testando combinações contra crédito bancário R$ 48.320,00...',
+      'Ranqueando combinações por score de proximidade...',
+      'Combinação 1: NF 37 + NF 44 = R$ 45.958,16 + R$ 2.100,20 — score 99,5%',
+      'Combinação 2: NF 37 + NF 102 = R$ 45.958,16 + R$ 1.488,30 — score 98,2%',
+      'Resultado pronto — nenhuma combinação fecha 100% · revisão recomendada...'
+    ];
+    window.combosAtivos = [
+      {label:'Combinação 1',nfs:['NF 37','NF 44'],credito:'R$ 48.320,00',soma:'R$ 48.058,36',diff:'R$ 261,64',score:'99,5%',scoreClass:'score-95',desc:'NF 37 (Processo 5928626) + NF 44'},
+      {label:'Combinação 2',nfs:['NF 37','NF 102'],credito:'R$ 48.320,00',soma:'R$ 47.446,46',diff:'R$ 873,54',score:'98,2%',scoreClass:'score-95',desc:'NF 37 (Processo 5928626) + NF 102'}
+    ];
+  }
   var i=0,el=document.getElementById('c2step');
   var iv=setInterval(function(){
     if(i<steps.length){el.textContent=steps[i];i++;}
-    else{clearInterval(iv);document.getElementById('c2proc').style.display='none';document.getElementById('c2ficha').style.display='block';document.getElementById('c2ficha').scrollIntoView({behavior:'smooth'});}
+    else{
+      clearInterval(iv);
+      document.getElementById('c2proc').style.display='none';
+      renderCombos();
+      document.getElementById('c2combinacoes').style.display='block';
+      document.getElementById('c2combinacoes').scrollIntoView({behavior:'smooth'});
+    }
   },600);
 }
 
+function renderCombos(){
+  var combos = window.combosAtivos || [];
+  var grid = document.querySelector('.combo-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  combos.forEach(function(c, idx){
+    var nfChips = c.nfs.map(function(nf){
+      return '<span class="nf-chip">'+nf+'</span>';
+    }).join('<span class="plus-sign">+</span>');
+    var diffColor = c.diff==='R$ 0,00' ? 'var(--green)' : 'var(--red)';
+    var somaColor = c.diff==='R$ 0,00' ? 'var(--green)' : 'var(--purple)';
+    var card = document.createElement('div');
+    card.className = 'combo-card';
+    card.id = 'combo'+idx;
+    card.onclick = function(){ selecionarCombinacao(idx); };
+    card.innerHTML =
+      '<div class="combo-rank">'+
+        '<span class="combo-rank-num">'+c.label+'</span>'+
+        '<span class="combo-score-pill '+c.scoreClass+'">'+c.score+' match</span>'+
+      '</div>'+
+      '<div class="combo-nfs">'+nfChips+'</div>'+
+      '<div class="combo-values">'+
+        '<div class="cv-item"><div class="cv-lbl">Crédito MV</div><div class="cv-val green">'+c.credito+'</div></div>'+
+        '<div class="cv-item"><div class="cv-lbl">Soma NFs</div><div class="cv-val" style="color:'+somaColor+'">'+c.soma+'</div></div>'+
+        '<div class="cv-item"><div class="cv-lbl">Diferença</div><div class="cv-val" style="color:'+diffColor+'">'+c.diff+(c.diff==='R$ 0,00'?' ✓':'')+'</div></div>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function selecionarCombinacao(idx){
+  document.querySelectorAll('.combo-card').forEach(function(c,i){
+    c.classList.toggle('combo-selected',i===idx);
+  });
+  document.getElementById('btn-analisar').disabled=false;
+  var combos = window.combosAtivos || [
+    {label:'Combinação 1',nfs:['NF 35','NF 37'],desc:'NF 35 (Processo 5841226) + NF 37 (Processo 5928626)'},
+    {label:'Combinação 2',nfs:['NF 831','NF 70','NF 37'],desc:'NF 831 + NF 70 + NF 37'}
+  ];
+  var c=combos[idx];
+  document.getElementById('combo-hint').textContent=c.label+' selecionada — clique em "Confirmar e fazer upload das glosas"';
+  window.comboSelecionada=c;
+}
+
+function analisarCombinacao(){
+  var c=window.comboSelecionada;
+  document.getElementById('c2combinacoes').style.display='none';
+  // Atualiza passo de glosas com as NFs da combinação
+  document.getElementById('glosas-titulo').textContent='Faça upload das glosas para '+c.nfs.join(' + ');
+  document.getElementById('glosas-desc').textContent='Você selecionou a '+c.label+' ('+c.desc+'). Acesse o portal ePro-Social → Relatórios → Demonstrativo de Glosas Analítico, filtre pelas notas fiscais selecionadas e faça o upload do PDF.';
+  // Atualiza chips das NFs
+  var chips=document.getElementById('nf-chips-glosas');
+  chips.innerHTML='<span style="font-size:11px;color:var(--text3)">NFs da combinação:</span>';
+  c.nfs.forEach(function(nf){
+    chips.innerHTML+='<span style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;font-family:var(--mono);background:var(--purple-light);border:1px solid var(--purple);color:var(--purple)">'+nf+'</span>';
+  });
+  document.getElementById('c2upload-glosas').style.display='block';
+  document.getElementById('c2upload-glosas').scrollIntoView({behavior:'smooth'});
+}
+
+function simGlosas(){setTimeout(function(){markGlosas();},300);}
+function uploadedGlosas(e){if(e.target.files&&e.target.files.length>0)markGlosas();}
+function markGlosas(){
+  document.getElementById('box-glosas').classList.add('has-file');
+  document.getElementById('icon-glosas').style.color='var(--purple)';
+  document.getElementById('processar-btn').disabled=false;
+  document.getElementById('upload-status-glosas').innerHTML='<i class="ti ti-check" style="font-size:14px;color:var(--purple)"></i>Glosas carregadas — clique em "Processar documentos"';
+}
+
+function processar(){
+  document.getElementById('c2upload-glosas').style.display='none';
+  document.getElementById('c2proc').style.display='block';
+  document.getElementById('c2proc').scrollIntoView({behavior:'smooth'});
+  var steps=[
+    'Lendo Demonstrativo de Glosas Analítico (TRF016)...',
+    'Extraindo PEG 207793 — 3 itens de glosa (NF 35)...',
+    'Extraindo PEG 207807 — 2 itens de glosa (NF 35)...',
+    'Extraindo PEGs 208094 a 208118 — NF 37...',
+    'Consolidando valores: NF 35 líquido R$ 30.853,46...',
+    'Consolidando valores: NF 37 líquido R$ 45.958,16...',
+    'R$ 30.853,46 + R$ 45.958,16 = R$ 76.811,62 ✓',
+    'Ficha de conciliação pronta...'
+  ];
+  var i=0,el=document.getElementById('c2step');
+  var iv=setInterval(function(){
+    if(i<steps.length){el.textContent=steps[i];i++;}
+    else{
+      clearInterval(iv);
+      document.getElementById('c2proc').style.display='none';
+      // Resetar botões da ficha para estado inicial
+      var btnConfirmar = document.getElementById('btn-confirmar-poc');
+      var btnRevisar = document.getElementById('btn-revisar-c2');
+      if(btnConfirmar){
+        btnConfirmar.style.display='inline-flex';
+        btnConfirmar.disabled=false;
+        btnConfirmar.style.opacity='1';
+      }
+      if(btnRevisar){
+        btnRevisar.style.display='inline-flex';
+        btnRevisar.disabled=false;
+        btnRevisar.style.opacity='1';
+      }
+      // Fechar painel de revisão se estiver aberto
+      var revisaoPanel = document.getElementById('revisao-panel');
+      if(revisaoPanel) revisaoPanel.style.display='none';
+      // Resetar mensagem de meta
+      var meta = document.querySelector('#c2ficha .ficha-meta');
+      if(meta) meta.innerHTML='<i class="ti ti-clock" style="color:var(--purple)"></i>2 PDFs processados em 6s — dados extraídos e consolidados automaticamente';
+      document.getElementById('c2ficha').style.display='block';
+      document.getElementById('c2ficha').scrollIntoView({behavior:'smooth'});
+    }
+  },600);
+}
+
+function c2Confirmar(){
+  var btnConfirmar=document.getElementById('btn-confirmar-poc');
+  var btnExtrair=document.getElementById('btn-extrair-c2');
+  if(btnConfirmar) btnConfirmar.style.display='none';
+  if(btnExtrair){
+    btnExtrair.disabled=false;
+    btnExtrair.removeAttribute('title');
+    btnExtrair.style.cssText='border-color:var(--purple);color:var(--purple);opacity:1;cursor:pointer;transition:all .3s ease;background:var(--purple-light)';
+    btnExtrair.onclick=function(){extrairTabelaC2();};
+    setTimeout(function(){btnExtrair.style.background='';},600);
+  }
+  // Atualizar status APENAS na linha do registro selecionado
+  var rowIdx = window.rowIdxSelecionado !== undefined ? window.rowIdxSelecionado : 0;
+  var statusCell = document.getElementById('c2status-'+rowIdx);
+  if(statusCell){
+    statusCell.innerHTML='<span class="badge done" style="background:#E1F5EE;color:#0F6E56"><i class="ti ti-check" style="font-size:11px"></i>Pré-conciliado</span>';
+  }
+  // Bloquear APENAS o botão Inspecionar da linha selecionada
+  var row = document.getElementById('c2row'+rowIdx);
+  if(row){
+    var inspBtn = row.querySelector('.insp-btn');
+    if(inspBtn){
+      inspBtn.disabled=true;
+      inspBtn.style.opacity='0.4';
+      inspBtn.style.cursor='not-allowed';
+      inspBtn.title='Crédito já pré-conciliado';
+    }
+    row.onclick=null;
+    row.style.cursor='default';
+    row.classList.remove('sel-purple');
+  }
+  // Adicionar na fila
+  var credito = window.creditoSelecionado || {valor:'76.811,62', fornecedor:'JUSTICA FEDERAL DE PRIMEIRO GRAU EM MG', banco:'ITAU 90219-8', documento:'2904', dataCredito:'29/04/2026'};
+  adicionarNaFila(credito, {});
+  // Mensagem na ficha
+  var meta=document.querySelector('#c2ficha .ficha-meta');
+  if(meta) meta.innerHTML='<i class="ti ti-circle-check" style="font-size:14px;color:var(--green)"></i>Pré-conciliação confirmada — veja na aba "Fila de pré-conciliação" ou extraia a tabela';
+  // Mostrar notificação e redirecionar para a fila após 2s
+  setTimeout(function(){
+    document.getElementById('c2ficha').style.display='none';
+    switchC2Tab('inspecionados');
+  }, 2000);
+}
+function c2Rejeitar(){document.getElementById('c2ficha').style.display='none';alert('Enviado para revisão manual.');}
+
+function extrairTabelaC1(){
+  var rows=[
+    ['Operadora','Data Crédito','Vlr. a Conciliar (IC)','Protocolo','Lote IC','Remessa MV','Vlr. IC','Vlr. MV','Situação','Status'],
+    ['Fundação Saúde Itaú','29/04/2026','R$ 1.569,42','20036306','17466','2370081','R$ 1.550,00','R$ 1.550,00','Lote Enviado','✓ Match'],
+    ['Fundação Saúde Itaú','29/04/2026','R$ 1.569,42','20036307','17467','2370082','R$ 19,42','R$ 19,42','Lote Enviado','✓ Match'],
+    ['','','TOTAL','','','','R$ 1.569,42','R$ 1.569,42','','Diferença: R$ 0,00'],
+  ];
+  abrirModalTabela('Extração — Cenário 1 · Fundação Saúde Itaú · 29/04/2026', rows, 'green');
+}
+
+function extrairTabelaC2(){
+  var rows=[
+    // CABEÇALHO GERAL
+    ['NF','Processo','Valor Solicitado','Glosa Total','Valor Devido','IRRF','Valor Líquido'],
+    ['NF 35','5841226','R$ 33.200,11','R$ 404,45','R$ 32.795,66','R$ 1.942,20','R$ 30.853,46'],
+    ['NF 37','5928626','R$ 75.709,51','R$ 25.322,34','R$ 50.387,17','R$ 4.429,01','R$ 45.958,16'],
+    ['CONSOLIDADO','','','','','Total líquido:','R$ 76.811,62'],
+    ['CRÉDITO MV','Doc. 2904 · 29/04/2026','','','','Diferença:','R$ 0,00 ✓'],
+    // LINHA SEPARADORA
+    ['— DETALHAMENTO POR PEG —','','','','','',''],
+    // CABEÇALHO DETALHE
+    ['NF / PEG','Processo','Item','Cobrado','Glosa','Devido','Motivo da Glosa'],
+    // NF 35
+    ['NF 35 / 207793','5841226','3M Tegaderm IV Curativo e Fixador','R$ 64,32','R$ 30,42','R$ 33,90','Valor acima da tabela negociada'],
+    ['NF 35 / 207793','5841226','Kytril 1mg/ml sol. inj.','R$ 522,42','R$ 167,38','R$ 355,04','Valor acima da tabela negociada'],
+    ['NF 35 / 207793','5841226','Família de Equipos Infusão Gravitacional','R$ 194,84','R$ 82,36','R$ 112,48','Glosa de auditoria'],
+    ['NF 35 / 207793','5841226','TOTAL PEG 207793','R$ 781,58','R$ 280,16','R$ 501,42','—'],
+    ['NF 35 / 207807','5841226','Secufill — TUSS deve ser SIMPRO','R$ 120,45','R$ 120,45','R$ 0,00','Grau inválido para o evento'],
+    ['NF 35 / 207807','5841226','Lanceta Descartável para Lancetador','R$ 3,91','R$ 3,84','R$ 0,07','Valor acima da tabela negociada'],
+    ['NF 35 / 207807','5841226','TOTAL PEG 207807','R$ 124,36','R$ 124,29','R$ 0,07','—'],
+    // NF 37
+    ['NF 37 / 208094','5928626','Família de Equipos Infusão Gravitacional','R$ 194,84','R$ 55,82','R$ 139,02','Glosa de auditoria'],
+    ['NF 37 / 208094','5928626','3M Tegaderm IV Curativo e Fixador','R$ 64,32','R$ 30,42','R$ 33,90','Valor acima da tabela negociada'],
+    ['NF 37 / 208094','5928626','TOTAL PEG 208094','R$ 259,16','R$ 86,24','R$ 172,92','—'],
+    ['NF 37 / 208096','5928626','Medi-Trace Eletrodos — TUSS deve ser SIMPRO','R$ 59,50','R$ 59,50','R$ 0,00','Grau inválido para o evento'],
+    ['NF 37 / 208096','5928626','Cateter Nasal Óculos Oxigênio — TUSS deve ser SIMPRO','R$ 175,00','R$ 175,00','R$ 0,00','Grau inválido para o evento'],
+    ['NF 37 / 208096','5928626','TOTAL PEG 208096','R$ 234,50','R$ 234,50','R$ 0,00','—'],
+    ['NF 37 / 208097','5928626','Filling Kit P/RM — Materiais SIMPRO','R$ 26.228,85','R$ 24.740,55','R$ 1.488,30','Valor acima da tabela negociada'],
+    ['NF 37 / 208097','5928626','TOTAL PEG 208097','R$ 26.228,85','R$ 24.740,55','R$ 1.488,30','—'],
+    ['NF 37 / 208102','5928626','Floratil 100mg — Medicamentos Brasíndice','R$ 9,54','R$ 0,74','R$ 8,80','Valor acima da tabela negociada'],
+    ['NF 37 / 208104','5928626','Medi-Trace Eletrodos — TUSS deve ser SIMPRO','R$ 59,50','R$ 59,50','R$ 0,00','Grau inválido para o evento'],
+    ['NF 37 / 208104','5928626','Cateter Nasal Óculos Oxigênio — TUSS deve ser SIMPRO','R$ 175,00','R$ 175,00','R$ 0,00','Grau inválido para o evento'],
+    ['NF 37 / 208107','5928626','Lanceta Descartável para Lancetador','R$ 3,91','R$ 3,84','R$ 0,07','Valor acima da tabela negociada'],
+    ['NF 37 / 208107','5928626','Tenlopin 5mg — Medicamentos Brasíndice','R$ 6,18','R$ 3,30','R$ 2,88','Valor acima da tabela negociada'],
+    ['NF 37 / 208118','5928626','Doppler Colorido de Órgão ou Estrutura','R$ 261,17','R$ 0,01','R$ 261,16','Valor acima da tabela negociada'],
+  ];
+  abrirModalTabela('Extração — Cenário 2 · Justiça Federal · Crédito R$ 76.811,62', rows, 'purple');
+}
+
+function abrirModalTabela(titulo, rows, cor){
+  var old=document.getElementById('modal-tabela');
+  if(old) old.remove();
+  var accentColor=cor==='green'?'var(--green)':'var(--purple)';
+  var accentLight=cor==='green'?'var(--green-light)':'var(--purple-light)';
+  var tableHtml='<table style="width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font)">';
+  rows.forEach(function(row,ri){
+    var isHeader=ri===0;
+    var isTotal=row[2]&&(row[2].indexOf('TOTAL')>=0||row[2].indexOf('CONSOLIDADO')>=0)||row[0].indexOf('CONSOLIDADO')>=0;
+    var bg=isHeader?accentColor:isTotal?accentLight:(ri%2===0?'#F7F7F5':'#FFFFFF');
+    var color=isHeader?'#fff':'#1A1A18';
+    var fw=(isHeader||isTotal)?'600':'400';
+    tableHtml+='<tr>';
+    row.forEach(function(cell){
+      var td=isHeader?'th':'td';
+      var align=cell&&(cell.indexOf('R$')>=0||cell.indexOf('✓')>=0)?'right':'left';
+      tableHtml+='<'+td+' style="padding:7px 10px;border:1px solid #E4E4E0;background:'+bg+';color:'+color+';font-weight:'+fw+';text-align:'+align+'">'+cell+'</'+td+'>';
+    });
+    tableHtml+='</tr>';
+  });
+  tableHtml+='</table>';
+  var csvRows=rows.map(function(row){return row.map(function(c){return'"'+c+'"';}).join(',');});
+  var csvContent='data:text/csv;charset=utf-8,' + csvRows.join('\n');
+  var modal=document.createElement('div');
+  modal.id='modal-tabela';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML=
+    '<div style="background:#fff;border-radius:14px;width:100%;max-width:900px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2)">'+
+      '<div style="padding:16px 20px;border-bottom:1px solid #E4E4E0;display:flex;align-items:center;justify-content:space-between;background:#F7F7F5">'+
+        '<div>'+
+          '<div style="font-size:13px;font-weight:600;color:#1A1A18">'+titulo+'</div>'+
+          '<div style="font-size:11px;color:#9A9A96;margin-top:2px">Dados extraídos automaticamente pelo motor ConcilIA</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px">'+
+          '<a href="'+csvContent+'" download="ConcilIA_extracao.csv" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid '+accentColor+';background:#fff;color:'+accentColor+';text-decoration:none"><i class="ti ti-download" style="font-size:14px"></i>Baixar CSV</a>'+
+          '<button onclick="document.getElementById(\'modal-tabela\').remove()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #E4E4E0;background:#fff;color:#5A5A56;font-family:var(--font)"><i class=\"ti ti-x\" style=\"font-size:14px\"></i>Fechar</button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="padding:16px 20px;overflow:auto;flex:1">'+tableHtml+'</div>'+
+    '</div>';
+  modal.addEventListener('click',function(e){if(e.target===modal)modal.remove();});
+  document.body.appendChild(modal);
+}
+
 function swNF(n){
-  ['35','37'].forEach(function(t){document.getElementById('t'+t).className='tab';document.getElementById('p'+t).classList.remove('active');});
+  ['35','37'].forEach(function(t){
+    document.getElementById('t'+t).className='tab';
+    document.getElementById('p'+t).classList.remove('active');
+  });
   document.getElementById('t'+n).className='tab active-purple';
   document.getElementById('p'+n).classList.add('active');
 }
@@ -812,6 +1591,46 @@ function swNF(n){
 function showDetail(nf,peg){
   document.querySelectorAll('[id^="peg'+nf+'-"]').forEach(function(r){r.classList.remove('active')});
   document.getElementById('peg'+nf+'-'+peg).classList.add('active');
+  var pegData={
+    '35':{
+      '207793':{cobrado:'R$ 781,58',glosa:'R$ 280,16',devido:'R$ 501,42',itens:[
+        {mot:'Valor cobrado acima da tabela negociada',desc:'3M Tegaderm IV Curativo e Fixador — material lançado com codificação TUSS e não SIMPRO conforme contrato',cob:'R$ 64,32',glo:'R$ 30,42',dev:'R$ 33,90'},
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Kytril 1mg/ml sol. inj. ct. amp. vd. — Medicamentos Brasíndice',cob:'R$ 522,42',glo:'R$ 167,38',dev:'R$ 355,04'},
+        {mot:'Glosa de auditoria',desc:'Família de Equipos para Infusão Gravitacional — diferença do capiante. XML enviado com valor da conta suja. Autorizado por Betânia por e-mail.',cob:'R$ 194,84',glo:'R$ 82,36',dev:'R$ 112,48'}
+      ]},
+      '207807':{cobrado:'R$ 124,36',glosa:'R$ 124,29',devido:'R$ 0,07',itens:[
+        {mot:'Grau não é válido para o evento',desc:'Secufill REF: NÃO SE APLICA — material cobrado com TUSS, deve ser SIMPRO conforme contrato',cob:'R$ 120,45',glo:'R$ 120,45',dev:'R$ 0,00'},
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Lanceta Descartável para Lancetador — Materiais SIMPRO',cob:'R$ 3,91',glo:'R$ 3,84',dev:'R$ 0,07'}
+      ]}
+    },
+    '37':{
+      '208094':{cobrado:'R$ 259,16',glosa:'R$ 86,24',devido:'R$ 172,92',itens:[
+        {mot:'Glosa de auditoria',desc:'Família de Equipos para Infusão Gravitacional — diferença do capiante. XML com valor conta suja. Autorizado por Betânia.',cob:'R$ 194,84',glo:'R$ 55,82',dev:'R$ 139,02'},
+        {mot:'Valor cobrado acima da tabela negociada',desc:'3M Tegaderm IV Curativo e Fixador — Materiais SIMPRO',cob:'R$ 64,32',glo:'R$ 30,42',dev:'R$ 33,90'}
+      ]},
+      '208096':{cobrado:'R$ 234,50',glosa:'R$ 234,50',devido:'R$ 0,00',itens:[
+        {mot:'Grau não é válido para o evento',desc:'Medi-Trace Eletrodos Para — materiais lançados com TUSS, devem ser cobrados com SIMPRO conforme contrato',cob:'R$ 59,50',glo:'R$ 59,50',dev:'R$ 0,00'},
+        {mot:'Grau não é válido para o evento',desc:'Cateter Nasal Tipo Óculos Oxigênio REF: NÃO SE APLICA — TUSS, deve ser SIMPRO',cob:'R$ 175,00',glo:'R$ 175,00',dev:'R$ 0,00'}
+      ]},
+      '208097':{cobrado:'R$ 26.228,85',glosa:'R$ 24.740,55',devido:'R$ 1.488,30',itens:[
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Filling Kit P/RM — Materiais SIMPRO — valor cobrado acima da tabela negociada',cob:'R$ 26.228,85',glo:'R$ 24.740,55',dev:'R$ 1.488,30'}
+      ]},
+      '208102':{cobrado:'R$ 9,54',glosa:'R$ 0,74',devido:'R$ 8,80',itens:[
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Floratil 100mg bl. 12 caps. gel dura — Medicamentos Brasíndice',cob:'R$ 9,54',glo:'R$ 0,74',dev:'R$ 8,80'}
+      ]},
+      '208104':{cobrado:'R$ 1.645,84',glosa:'R$ 234,50',devido:'R$ 1.411,34',itens:[
+        {mot:'Grau não é válido para o evento',desc:'Medi-Trace Eletrodos Para — TUSS, devem ser SIMPRO conforme contrato',cob:'R$ 59,50',glo:'R$ 59,50',dev:'R$ 0,00'},
+        {mot:'Grau não é válido para o evento',desc:'Cateter Nasal Tipo Óculos Oxigênio — TUSS, deve ser SIMPRO',cob:'R$ 175,00',glo:'R$ 175,00',dev:'R$ 0,00'}
+      ]},
+      '208107':{cobrado:'R$ 2.424,06',glosa:'R$ 26,91',devido:'R$ 2.397,15',itens:[
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Lanceta Descartável para Lancetador — Materiais SIMPRO',cob:'R$ 3,91',glo:'R$ 3,84',dev:'R$ 0,07'},
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Tenlopin 5mg bl. al. plas. opc. x 30 cprs. — Medicamentos Brasíndice',cob:'R$ 6,18',glo:'R$ 3,30',dev:'R$ 2,88'}
+      ]},
+      '208118':{cobrado:'R$ 261,17',glosa:'R$ 0,01',devido:'R$ 261,16',itens:[
+        {mot:'Valor cobrado acima da tabela negociada',desc:'Doppler Colorido de Órgão ou Estrutura — Exames Ultrassonografia',cob:'R$ 261,17',glo:'R$ 0,01',dev:'R$ 261,16'}
+      ]}
+    }
+  };
   var d=pegData[nf][peg];
   var html='<div class="detail-peg-hdr"><h3><i class="ti ti-receipt" style="font-size:15px;color:var(--purple)"></i>PEG '+peg+' — '+d.itens.length+' item(ns) de glosa</h3></div>';
   html+='<div class="detail-totals"><div class="dt-item"><div class="dl">Cobrado</div><div class="dv">'+d.cobrado+'</div></div><div class="dt-item"><div class="dl">Glosa</div><div class="dv r">'+d.glosa+'</div></div><div class="dt-item"><div class="dl">Devido</div><div class="dv g">'+d.devido+'</div></div></div>';
@@ -819,17 +1638,506 @@ function showDetail(nf,peg){
     html+='<div class="glosa-item"><div class="gm">'+item.mot+'</div><div class="gd">'+item.desc+'</div><div class="gvals"><div class="gv"><div class="gl">Cobrado</div><div class="gn">'+item.cob+'</div></div><div class="gv"><div class="gl">Glosa</div><div class="gn r">'+item.glo+'</div></div><div class="gv"><div class="gl">Devido</div><div class="gn g">'+item.dev+'</div></div></div></div>';
   });
   document.getElementById('empty-'+nf).style.display='none';
-  var c=document.getElementById('content-'+nf);c.innerHTML=html;c.style.display='block';
+  var c=document.getElementById('content-'+nf);
+  c.innerHTML=html;
+  c.style.display='block';
 }
 
-function c2Confirmar(){
-  alert('Baixa confirmada!\n\nCrédito de R$ 76.811,62 registrado como conciliado.\nNF 35 (Processo 5841226) e NF 37 (Processo 5928626) vinculadas.');
-  document.getElementById('c2ficha').style.display='none';
-  document.getElementById('c2upload').style.display='none';
-  document.getElementById('c2status').innerHTML='<span class="badge done"><i class="ti ti-check" style="font-size:11px"></i>Conciliado</span>';
-  document.getElementById('c2row1').classList.remove('sel-purple');
+// ── CSV MV ────────────────────────────────────────
+var csvData = [];
+
+function simCSV(){
+  setTimeout(function(){
+    var fakeRows = [
+      {unidade:'12-HOSPITAL MATER DEI NOVA LIMA',codigo:'10928659',codigoBanco:'145',banco:'ITAU 90219-8',documento:'2904',dataCredito:'29/04/2026',fornecedor:'JUSTICA FEDERAL DE PRIMEIRO GRAU EM MG',valor:'76.811,62'},
+      {unidade:'12-HOSPITAL MATER DEI NOVA LIMA',codigo:'10928659',codigoBanco:'145',banco:'ITAU 90219-8',documento:'3012',dataCredito:'15/05/2026',fornecedor:'JUSTICA FEDERAL DE PRIMEIRO GRAU EM MG',valor:'48.320,00'}
+    ];
+    renderCSVTable(fakeRows);
+    markCSVUploaded();
+  }, 400);
 }
-function c2Rejeitar(){document.getElementById('c2ficha').style.display='none';alert('Enviado para revisão manual.');}
+
+function uploadedCSV(e){
+  if(!e.target.files||!e.target.files[0]) return;
+  var file = e.target.files[0];
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var text = ev.target.result;
+    var rows = parseCSV(text);
+    renderCSVTable(rows);
+    markCSVUploaded();
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text){
+  var lines = text.trim().split('\n');
+  var headers = lines[0].split(';').map(function(h){return h.trim();});
+  var rows = [];
+  for(var i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    var cols = lines[i].split(';').map(function(c){return c.trim();});
+    var row = {};
+    // Mapear colunas por posição
+    row.unidade     = cols[0]||'';
+    row.codigo      = cols[1]||'';
+    row.codigoBanco = cols[2]||'';
+    row.banco       = cols[3]||'';
+    row.documento   = cols[4]||'';
+    row.dataCredito = cols[5]||'';
+    row.fornecedor  = cols[6]||'';
+    row.valor       = cols[7]||'';
+    rows.push(row);
+  }
+  return rows;
+}
+
+function renderCSVTable(rows){
+  csvData = rows;
+  var tbody = document.getElementById('csv-tbody');
+  tbody.innerHTML = '';
+  var total = 0;
+  rows.forEach(function(row, idx){
+    var valNum = parseFloat(row.valor.replace('.','').replace(',','.')) || 0;
+    total += valNum;
+    var valFmt = 'R$ ' + valNum.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    var fornLabel = row.fornecedor.length > 30 ? row.fornecedor.substring(0,30)+'...' : row.fornecedor;
+    var tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.id = 'c2row'+idx;
+    tr.onclick = function(){ c2SelectRow(idx, row); };
+    tr.innerHTML =
+      '<td style="font-size:11px;color:var(--text2)">'+row.unidade+'</td>'+
+      '<td style="font-family:var(--mono);font-size:12px">'+row.codigo+'</td>'+
+      '<td style="font-family:var(--mono);font-size:12px">'+row.codigoBanco+'</td>'+
+      '<td style="font-size:12px">'+row.banco+'</td>'+
+      '<td style="font-weight:500;font-family:var(--mono)">'+row.documento+'</td>'+
+      '<td>'+row.dataCredito+'</td>'+
+      '<td><span class="tag jf" style="font-size:11px;white-space:nowrap" title="'+row.fornecedor+'">'+fornLabel+'</span></td>'+
+      '<td><strong style="font-size:13px">'+valFmt+'</strong></td>'+
+      '<td><span class="badge pend" id="c2status-'+idx+'"><i class="ti ti-clock" style="font-size:11px"></i>Pendente</span></td>'+
+      '<td><button class="insp-btn" onclick="event.stopPropagation();c2SelectRow('+idx+',csvData['+idx+'])"><i class="ti ti-search" style="font-size:13px"></i>Inspecionar</button></td>';
+    tbody.appendChild(tr);
+  });
+  var totalFmt = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('csv-footer').textContent = rows.length + ' crédito(s) carregado(s) · Total: ' + totalFmt;
+  document.getElementById('c2-table-card').style.display = 'block';
+  document.getElementById('c2-badge-relatorio').textContent = rows.length;
+}
+
+function markCSVUploaded(){
+  document.getElementById('box-csv-mv').classList.add('has-file');
+  document.getElementById('icon-csv').style.color = 'var(--purple)';
+}
+
+function filtrarCSV(q){
+  var rows = document.getElementById('csv-tbody').querySelectorAll('tr');
+  q = q.toLowerCase();
+  rows.forEach(function(tr){
+    tr.style.display = tr.textContent.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+  });
+}
+
+function c2SelectRow(idx, row){
+  // Desselecionar todas
+  document.querySelectorAll('[id^="c2row"]').forEach(function(r){
+    r.classList.remove('sel-purple');
+  });
+  document.getElementById('c2row'+idx).classList.add('sel-purple');
+  // Guardar valor do crédito selecionado E o índice da linha
+  window.creditoSelecionado = row;
+  window.rowIdxSelecionado = idx;
+  // Mostrar upload de pagamento
+  document.getElementById('c2upload').style.display='block';
+  document.getElementById('c2upload-glosas').style.display='none';
+  document.getElementById('c2proc').style.display='none';
+  document.getElementById('c2combinacoes').style.display='none';
+  document.getElementById('c2ficha').style.display='none';
+  document.getElementById('c2upload').scrollIntoView({behavior:'smooth'});
+}
+
+// ── ABAS C2 ───────────────────────────────────────
+var revisaoItems = [];
+
+function switchC2Tab(tab){
+  // Sub-panels
+  document.getElementById('c2-sub-relatorio').style.display = tab==='relatorio' ? 'block' : 'none';
+  document.getElementById('c2-sub-fila').style.display = tab==='inspecionados' ? 'block' : 'none';
+  document.getElementById('c2-sub-revisao').style.display = tab==='revisao' ? 'block' : 'none';
+  // Esconder cards de processamento ao trocar aba
+  ['c2upload','c2upload-glosas','c2proc','c2combinacoes','c2ficha'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.display='none';
+  });
+  // Estilo das 3 abas
+  var tabs=['relatorio','inspecionados','revisao'];
+  tabs.forEach(function(t){
+    var el=document.getElementById('c2tab-'+t);
+    if(!el) return;
+    var active = t===tab;
+    el.style.background = active ? 'var(--purple-light)' : 'transparent';
+    el.style.color = active ? 'var(--purple)' : 'var(--text2)';
+    el.style.borderBottom = active ? '2px solid var(--purple)' : '2px solid transparent';
+  });
+}
+
+function abrirRevisao(){
+  var panel = document.getElementById('revisao-panel');
+  panel.style.display = panel.style.display==='none' ? 'block' : 'none';
+  if(panel.style.display==='block'){
+    document.getElementById('revisao-texto').focus();
+    document.getElementById('btn-confirmar-poc').disabled = true;
+    document.getElementById('btn-confirmar-poc').style.opacity = '0.4';
+  } else {
+    document.getElementById('btn-confirmar-poc').disabled = false;
+    document.getElementById('btn-confirmar-poc').style.opacity = '1';
+  }
+}
+
+function fecharRevisao(){
+  document.getElementById('revisao-panel').style.display='none';
+  document.getElementById('revisao-texto').value='';
+  document.getElementById('btn-confirmar-poc').disabled = false;
+  document.getElementById('btn-confirmar-poc').style.opacity = '1';
+}
+
+function enviarRevisao(){
+  var motivo = document.getElementById('revisao-texto').value.trim();
+  if(!motivo){ alert('Descreva o motivo da revisão antes de enviar.'); return; }
+  var credito = window.creditoSelecionado || {valor:'76.811,62',fornecedor:'JUSTICA FEDERAL DE PRIMEIRO GRAU EM MG',banco:'ITAU 90219-8',documento:'2904',dataCredito:'29/04/2026'};
+  adicionarRevisao(credito, motivo);
+  // Fechar ficha e painel
+  document.getElementById('revisao-panel').style.display='none';
+  document.getElementById('c2ficha').style.display='none';
+  // Atualizar status APENAS na linha do registro selecionado
+  var rowIdx = window.rowIdxSelecionado !== undefined ? window.rowIdxSelecionado : 0;
+  var statusCell = document.getElementById('c2status-'+rowIdx);
+  if(statusCell){
+    statusCell.innerHTML='<span class="badge" style="background:var(--amber-light);color:var(--amber)"><i class="ti ti-edit" style="font-size:11px"></i>Em revisão</span>';
+  }
+  // Bloquear APENAS o botão Inspecionar da linha selecionada
+  var row = document.getElementById('c2row'+rowIdx);
+  if(row){
+    var inspBtn = row.querySelector('.insp-btn');
+    if(inspBtn){ inspBtn.disabled=true; inspBtn.style.opacity='0.4'; inspBtn.style.cursor='not-allowed'; }
+    row.onclick=null; row.style.cursor='default';
+    row.classList.remove('sel-purple');
+  }
+  // Ir para aba revisão
+  setTimeout(function(){ switchC2Tab('revisao'); }, 800);
+}
+
+function adicionarRevisao(credito, motivo){
+  var now = new Date();
+  var hora = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  revisaoItems.push({
+    dataCredito: credito.dataCredito||'29/04/2026',
+    fornecedor: credito.fornecedor||'JUSTICA FEDERAL DE PRIMEIRO GRAU EM MG',
+    documento: credito.documento||'2904',
+    valor: credito.valor||'76.811,62',
+    motivo: motivo,
+    hora: hora
+  });
+  renderRevisao();
+  document.getElementById('c2-badge-revisao').textContent = revisaoItems.length;
+  document.getElementById('c2-badge-revisao').style.background = 'var(--amber-light)';
+  document.getElementById('c2-badge-revisao').style.color = 'var(--amber)';
+}
+
+function renderRevisao(){
+  var tbody = document.getElementById('revisao-tbody');
+  var empty = document.getElementById('revisao-empty-row');
+  if(revisaoItems.length===0){ if(empty) empty.style.display=''; return; }
+  if(empty) empty.style.display='none';
+  tbody.innerHTML='';
+  revisaoItems.forEach(function(item){
+    var forn = item.fornecedor.length>28 ? item.fornecedor.substring(0,28)+'...' : item.fornecedor;
+    var tr = document.createElement('tr');
+    tr.innerHTML=
+      '<td>'+item.dataCredito+'</td>'+
+      '<td><span class="tag jf" style="font-size:11px" title="'+item.fornecedor+'">'+forn+'</span></td>'+
+      '<td style="font-family:var(--mono);font-weight:500">'+item.documento+'</td>'+
+      '<td style="font-weight:500">R$ '+item.valor+'</td>'+
+      '<td style="font-size:12px;color:var(--text2);max-width:220px">'+item.motivo+'</td>'+
+      '<td style="font-size:12px;color:var(--text3)">'+item.hora+'</td>'+
+      '<td><span class="badge" style="background:var(--amber-light);color:var(--amber)"><i class="ti ti-edit" style="font-size:11px"></i>Em revisão</span></td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('revisao-footer').style.display='block';
+  document.getElementById('revisao-footer').textContent = revisaoItems.length+' crédito(s) em revisão';
+}
+
+// ── FILA DE PRÉ-CONCILIAÇÃO ───────────────────────
+var filaItems = [];
+
+function adicionarNaFila(credito, resultado){
+  // Verifica se já existe
+  var existe = filaItems.find(function(i){ return i.documento === credito.documento; });
+  if(existe) return;
+
+  var item = {
+    dataCredito: credito.dataCredito || '29/04/2026',
+    fornecedor: credito.fornecedor || 'JUSTICA FEDERAL DE PRIMEIRO GRAU EM MG',
+    banco: credito.banco || 'ITAU 90219-8',
+    documento: credito.documento || '2904',
+    valorLancado: credito.valor || '76.811,62',
+    liquidoNFs: 'R$ 76.811,62',
+    diferenca: 'R$ 0,00',
+    nfs: 'NF 35 + NF 37',
+    status: 'pre-conciliado',
+    timestamp: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})
+  };
+  filaItems.push(item);
+  renderFila();
+  // Atualizar badge
+  document.getElementById('c2-badge-inspecionados').textContent = filaItems.length;
+  document.getElementById('c2-badge-inspecionados').style.background = 'var(--green-light)';
+  document.getElementById('c2-badge-inspecionados').style.color = 'var(--green-dark)';
+}
+
+function renderFila(){
+  var tbody = document.getElementById('fila-tbody');
+  var emptyRow = document.getElementById('fila-empty-row');
+  if(filaItems.length === 0){
+    if(emptyRow) emptyRow.style.display = '';
+    return;
+  }
+  if(emptyRow) emptyRow.style.display = 'none';
+
+  // Limpa e re-renderiza
+  tbody.innerHTML = '';
+  filaItems.forEach(function(item, idx){
+    var statusBadge = '';
+    if(item.status === 'pre-conciliado'){
+      statusBadge = '<span class="badge done" style="background:#E1F5EE;color:#0F6E56"><i class="ti ti-eye" style="font-size:11px"></i>Inspecionado</span>';
+    } else if(item.status === 'rejeitado'){
+      statusBadge = '<span class="badge" style="background:var(--red-light);color:var(--red)"><i class="ti ti-x" style="font-size:11px"></i>Rejeitado</span>';
+    }
+    var fornLabel = item.fornecedor.length > 28 ? item.fornecedor.substring(0,28)+'...' : item.fornecedor;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>'+item.dataCredito+'</td>'+
+      '<td><span class="tag jf" style="font-size:11px" title="'+item.fornecedor+'">'+fornLabel+'</span></td>'+
+      '<td style="font-size:12px">'+item.banco+'</td>'+
+      '<td style="font-weight:500;font-family:var(--mono)">'+item.documento+'</td>'+
+      '<td style="font-weight:500">R$ '+item.valorLancado+'</td>'+
+      '<td style="color:var(--green);font-weight:500">'+item.liquidoNFs+'</td>'+
+      '<td style="color:var(--green);font-weight:600">'+item.diferenca+' ✓</td>'+
+      '<td>'+statusBadge+'</td>'+
+      '<td>'+
+        '<button onclick="extrairTabelaC2()" class="btn" style="padding:5px 10px;font-size:11px;border-color:var(--purple);color:var(--purple)">'+
+          '<i class="ti ti-table-export"></i>Extrair'+
+        '</button>'+
+      '</td>';
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('fila-footer').style.display = 'block';
+  document.getElementById('fila-footer').textContent = filaItems.length + ' crédito(s) pré-conciliado(s)';
+}
+
+// ── XLSX/CSV IC ────────────────────────────────────────
+var icData = [];
+
+// Converter serial Excel para data
+function excelSerialToDate(serial){
+  if(!serial || isNaN(serial)) return String(serial);
+  var utc_days = Math.floor(serial - 25569);
+  var utc_value = utc_days * 86400;
+  var date = new Date(utc_value * 1000);
+  var d = date.getUTCDate().toString().padStart(2,'0');
+  var m = (date.getUTCMonth()+1).toString().padStart(2,'0');
+  var y = date.getUTCFullYear();
+  return d+'/'+m+'/'+y;
+}
+
+function simCSV_IC(){
+  setTimeout(function(){
+    var rows = [
+      {operadora:'Fundação Saúde Itaú', dataCredito:'29/04/2026', vlrIdentificado:'R$ 238.026,86', vlrConciliar:'1.550,00', protocolo:'20036306', lote:'17466', status:'Identificado a Conciliar'},
+      {operadora:'Fundação Saúde Itaú', dataCredito:'29/04/2026', vlrIdentificado:'R$ 238.026,86', vlrConciliar:'19,42',   protocolo:'20036307', lote:'17467', status:'Identificado a Conciliar'}
+    ];
+    renderIC_Table(rows);
+    markCSV_IC();
+  }, 400);
+}
+
+function uploadedCSV_IC(e){
+  if(!e.target.files||!e.target.files[0]) return;
+  var file = e.target.files[0];
+  var ext = file.name.split('.').pop().toLowerCase();
+  var reader = new FileReader();
+  if(ext === 'xlsx' || ext === 'xls'){
+    reader.onload = function(ev){
+      try {
+        var data = new Uint8Array(ev.target.result);
+        var workbook = XLSX.read(data, {type:'array'});
+        var sheet = workbook.Sheets[workbook.SheetNames[0]];
+        var json = XLSX.utils.sheet_to_json(sheet, {header:1});
+        var rows = [];
+        for(var i=1;i<json.length;i++){
+          var r = json[i];
+          if(!r||!r.length) continue;
+          // Detectar data serial Excel
+          var dataCred = r[0];
+          if(typeof dataCred === 'number') dataCred = excelSerialToDate(dataCred);
+          // Formatar valor a conciliar
+          var vlrConc = r[3];
+          if(typeof vlrConc === 'number'){
+            vlrConc = vlrConc.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+          }
+          rows.push({
+            dataCredito:     String(dataCred||''),
+            operadora:       String(r[1]||''),
+            vlrIdentificado: String(r[2]||''),
+            vlrConciliar:    String(vlrConc||''),
+            protocolo:       String(r[4]||''),
+            lote:            String(r[5]||''),
+            status:          String(r[6]||'Identificado a Conciliar')
+          });
+        }
+        renderIC_Table(rows);
+        markCSV_IC();
+      } catch(err){
+        console.error('Erro ao ler XLSX:', err);
+        simCSV_IC();
+        markCSV_IC();
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    // CSV fallback
+    reader.onload = function(ev){
+      var rows = parseCSV_IC(ev.target.result);
+      renderIC_Table(rows);
+      markCSV_IC();
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+function parseCSV_IC(text){
+  var lines = text.trim().split('\n');
+  var rows = [];
+  for(var i=1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    var cols = lines[i].split(';').map(function(c){return c.trim();});
+    rows.push({
+      dataCredito:     cols[0]||'',
+      operadora:       cols[1]||'',
+      vlrIdentificado: cols[2]||'',
+      vlrConciliar:    cols[3]||'',
+      protocolo:       cols[4]||'',
+      lote:            cols[5]||'',
+      status:          cols[6]||'Identificado a Conciliar'
+    });
+  }
+  return rows;
+}
+
+function renderIC_Table(rows){
+  icData = rows;
+  var tbody = document.getElementById('ic-tbody');
+  tbody.innerHTML = '';
+  var totalConciliar = 0;
+
+  rows.forEach(function(r, idx){
+    var vlrNum = parseFloat(String(r.vlrConciliar).replace(/\./g,'').replace(',','.')) || 0;
+    totalConciliar += vlrNum;
+    var vlrFmt = 'R$ ' + vlrNum.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var vlrId = r.vlrIdentificado || '—';
+    var tr = document.createElement('tr');
+    tr.className = 'clickable';
+    tr.id = 'c1row-'+idx;
+    tr.onclick = function(e){ if(e.target.type!=='checkbox') toggleIC(idx); };
+    tr.innerHTML =
+      '<td style="text-align:center"><input type="checkbox" class="ic-check" data-idx="'+idx+'" onchange="onICCheck()" onclick="event.stopPropagation()"/></td>'+
+      '<td>'+r.dataCredito+'</td>'+
+      '<td><span class="tag fs">'+r.operadora+'</span></td>'+
+      '<td style="color:var(--text2);font-size:12px">'+vlrId+'</td>'+
+      '<td><strong style="color:var(--red)">'+vlrFmt+'</strong></td>'+
+      '<td style="font-family:var(--mono);font-size:12px;font-weight:600">'+r.protocolo+'</td>'+
+      '<td style="font-family:var(--mono);font-size:12px;color:var(--purple)">'+r.lote+'</td>'+
+      '<td id="c1status-'+idx+'"><span class="badge conciliar">A conciliar</span></td>';
+    tbody.appendChild(tr);
+  });
+
+  window.icGroups = rows;
+
+  // Métricas
+  document.getElementById('c1-metric-total').textContent = rows.length;
+  var totalFmt = 'R$ ' + totalConciliar.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('c1-metric-valor').textContent = totalFmt;
+  document.getElementById('c1-metrics-card').style.display = 'block';
+  document.getElementById('c1-table-card').style.display = 'block';
+  document.getElementById('c1-badge-creditos').textContent = rows.length;
+}
+
+function toggleIC(idx){
+  var cb = document.querySelector('.ic-check[data-idx="'+idx+'"]');
+  if(cb){ cb.checked = !cb.checked; onICCheck(); }
+}
+
+function toggleAllIC(masterCb){
+  document.querySelectorAll('.ic-check').forEach(function(cb){ cb.checked = masterCb.checked; });
+  onICCheck();
+}
+
+function onICCheck(){
+  var checked = document.querySelectorAll('.ic-check:checked');
+  var bar = document.getElementById('c1-buscar-bar');
+  var label = document.getElementById('c1-sel-label');
+  if(checked.length > 0){
+    bar.style.display = '';
+    label.textContent = checked.length + ' protocolo(s) selecionado(s) · Total: R$ ' + calcTotalSelecionado();
+    // Highlight linhas selecionadas
+    document.querySelectorAll('.ic-check').forEach(function(cb){
+      var tr = document.getElementById('c1row-'+cb.dataset.idx);
+      if(tr) tr.classList.toggle('sel', cb.checked);
+    });
+  } else {
+    bar.style.display = 'none';
+    document.querySelectorAll('[id^="c1row-"]').forEach(function(r){ r.classList.remove('sel'); });
+  }
+}
+
+function calcTotalSelecionado(){
+  var total = 0;
+  document.querySelectorAll('.ic-check:checked').forEach(function(cb){
+    var r = icData[parseInt(cb.dataset.idx)];
+    if(r) total += parseFloat(String(r.vlrConciliar).replace(/\./g,'').replace(',','.')) || 0;
+  });
+  return total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function c1BuscarRemessas(){
+  var checked = Array.from(document.querySelectorAll('.ic-check:checked'));
+  if(!checked.length){ alert('Selecione ao menos um protocolo.'); return; }
+  var selectedRows = checked.map(function(cb){ return icData[parseInt(cb.dataset.idx)]; });
+  window.c1RowSelecionado = parseInt(checked[0].dataset.idx);
+  window.c1GroupSelecionado = selectedRows;
+  c1Select();
+}
+
+function markCSV_IC(){
+  document.getElementById('box-csv-ic').classList.add('has-file');
+  document.getElementById('icon-csv-ic').style.color='var(--green)';
+}
+
+function filtrarCSV_IC(q){
+  document.querySelectorAll('#ic-tbody tr').forEach(function(tr){
+    tr.style.display = tr.textContent.toLowerCase().indexOf(q.toLowerCase()) >= 0 ? '' : 'none';
+  });
+}
+
+function c1SelectRow(idx, group){
+  document.querySelectorAll('[id^="c1row-"]').forEach(function(r){ r.classList.remove('sel'); });
+  var row = document.getElementById('c1row-'+idx);
+  if(row) row.classList.add('sel');
+  window.c1RowSelecionado = idx;
+  window.c1GroupSelecionado = group;
+  c1Select();
+}
 </script>
 </body>
 </html>
